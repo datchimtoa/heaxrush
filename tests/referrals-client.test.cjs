@@ -4,7 +4,7 @@ const { readFileSync } = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-const link = 'https://t.me/alodvipbot?startapp=ref_67890';
+const link = 'https://t.me/hexarushbot?startapp=ref_67890';
 const legacyUuidLink = 'https://t.me/alodvipbot?startapp=ref_12345678-1234-4321-8123-123456789abc';
 function data(inviteLink = link) { return { rulesVersion: 'hexa-rush-v1', rewardsEnabled: false, targetGames: 3, inviteLink, invitedAccounts: 5, reachedAccounts: 2 }; }
 function client() {
@@ -57,7 +57,7 @@ test('copy/share are explicitly activated, preserve cancellations and offer copy
 	assert.equal(f.element('referralLink').selected, true); assert.equal(f.element('referralLink').focused, true);
 	f.context.navigator.share = async () => { const err = Error('cancel'); err.name = 'AbortError'; throw err; }; await f.context.shareReferralLink();
 	assert.match(f.element('referralStatus').text, /cancelled/);
-	delete f.context.navigator.share; await f.context.shareReferralLink(); assert.match(f.element('referralStatus').text, /Copy invite/);
+	delete f.context.navigator.share; await f.context.shareReferralLink(); assert.match(f.element('referralStatus').text, /Copy link/);
 	const telegram = []; f.context.window.Telegram = { WebApp: { openTelegramLink(url) { telegram.push(url); } } };
 	await f.context.shareReferralLink(); assert.ok(telegram[0].startsWith('https://t.me/share/url?url=https%3A%2F%2Ft.me%2F'));
 	assert.equal(new URL(telegram[0]).searchParams.get('url'), link, 'Telegram Share preserves the complete numeric Telegram-ID invite');
@@ -115,4 +115,37 @@ test('invite links accept numeric Telegram IDs and legacy links, never malformed
 	for (const invalid of [link.replace('startapp=', 'ref='), link.replace(/ref_.*/, 'ref_0'), link.replace(/ref_.*/, 'ref_067890'), link.replace(/ref_.*/, 'ref_-1'), link.replace(/ref_.*/, 'ref_1.5'), link.replace(/ref_.*/, 'ref_9007199254740992'), link.replace(/ref_.*/, 'ref_12345678901234567'), link + '&ref=12345', legacyUuidLink.replace('123456789abc', '123456789xyz')]) {
 		assert.equal(f.context.validReferralLink(invalid), false);
 	}
+});
+
+test('invite panel distinguishes link creation, ready and zero-progress states without rewards or invented friends', async () => {
+	const f = client();
+	f.context.fetch = async () => ({ ok: true, json: async () => ({ ...data(null), invitedAccounts: 0, reachedAccounts: 0 }) });
+	await f.context.loadReferrals(false);
+	assert.match(f.element('referralStatus').text, /Create your link/);
+	assert.equal(f.element('referralCreate').hidden, false);
+	assert.equal(f.element('referralInvite').hidden, true);
+	assert.equal(f.element('referralInvited').text, '0'); assert.equal(f.element('referralReached').text, '0');
+	f.context.fetch = async () => ({ ok: true, json: async () => ({ ...data(), invitedAccounts: 0, reachedAccounts: 0 }) });
+	await f.context.loadReferrals(false);
+	assert.match(f.element('referralStatus').text, /Your link is ready/);
+	assert.equal(f.element('referralCreate').hidden, true); assert.equal(f.element('referralInvite').hidden, false);
+	assert.equal(f.element('referralInvited').text, '0'); assert.equal(f.element('referralReached').text, '0');
+	assert.equal(f.element('referralLink').value, link);
+});
+
+test('referral redesign retains labeled selectable links, one primary share action and private account-only stats', () => {
+	const html = readFileSync(path.join(__dirname, '../index.html'), 'utf8');
+	const panel = html.split('<section data-home-panel="referrals"')[1].split('<section data-home-panel="wallet"')[0];
+	assert.match(panel, /class="menu-sheet referral-sheet"/);
+	assert.match(panel, /id="referralsTitle">Referrals/);
+	assert.match(panel, /Better with <span>friends\./);
+	assert.match(panel, /id="referralStatus"[^>]*role="status"/);
+	assert.match(panel, /label for="referralLink"/);
+	assert.match(panel, /textarea id="referralLink"[^>]*readonly/);
+	assert.match(panel, /id="referralShare" class="primary-button"/);
+	assert.match(panel, /id="referralCopy" class="secondary-button"/);
+	assert.match(panel, /aria-label="Your crew" hidden/);
+	assert.match(panel, /aria-label="How invites work"/);
+	assert.match(panel, /Referral rewards are not active/);
+	assert.doesNotMatch(panel, /leaderboard-status|daily-reward-notice|claim|earn \d|@[a-z]|https:\/\/t\.me/i);
 });

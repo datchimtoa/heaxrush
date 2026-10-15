@@ -133,14 +133,17 @@ try {
 			showHomeTab('home', false);
 			window.referralPreviousFetch = window.fetch; window.referralPreviousAccount = playerAccount;
 			window.referralPreviousShare = Object.getOwnPropertyDescriptor(navigator, 'share'); window.referralFixtureShares = [];
+			window.referralPreviousClipboard = Object.getOwnPropertyDescriptor(navigator, 'clipboard'); window.referralFixtureCopies = [];
 			window.referralPreviousViewport = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.viewportStableHeight;
 			Object.defineProperty(navigator, 'share', { configurable: true, value: async data => { referralFixtureShares.push(data); } });
+			Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async value => { referralFixtureCopies.push(value); } } });
 			window.referralBefore = JSON.stringify([MainHex.ct, score, playerRecords, playerPreferences]);
 			window.referralFixtureMode = 'no-link'; window.referralFixtureRequests = []; window.referralFixtureCreated = false;
+			window.referralFixtureLink = 'https://t.me/hexarushbot?startapp=ref_67890';
 			window.fetch = async (route, options = {}) => {
 				referralFixtureRequests.push({ route, method: options.method || 'GET', body: options.body || null, cache: options.cache, credentials: options.credentials });
 				if (referralFixtureMode === 'error') throw Error('fixture offline');
-			const inviteLink = 'https://t.me/alodvipbot?startapp=ref_67890';
+				const inviteLink = referralFixtureLink;
 				if (route === '/api/referrals/code') { referralFixtureCreated = true; return new Response(JSON.stringify({ inviteLink })); }
 				const data = { rulesVersion: HexaSessionRules.version, rewardsEnabled: false, targetGames: 3,
 					inviteLink: referralFixtureCreated ? inviteLink : null, invitedAccounts: referralFixtureMode === 'populated' ? 5 : 0, reachedAccounts: referralFixtureMode === 'populated' ? 2 : 0 };
@@ -152,6 +155,8 @@ try {
 		await click('#appNavigation [data-home-tab="referrals"]');
 		await waitFor('!document.querySelector("#referralRefresh").disabled', 'referral no-link fixture did not settle');
 		assert.equal(await evaluate('return !document.querySelector("#referralCreate").hidden && document.querySelector("#referralInvite").hidden && referralFixtureRequests.every(r => r.method === "GET");'), true, 'opening Referrals never creates a code');
+		await command('browsingContext.setViewport', { context, viewport: { width: 390, height: 844 }, devicePixelRatio: 1 });
+		await screenshot('referrals-' + (reducedMotionTest ? 'reduced-' : '') + 'create-fixture');
 		await click('#referralCreate');
 		await waitFor('!document.querySelector("#referralInvite").hidden', 'explicit invite creation did not settle');
 		await evaluate('referralFixtureMode = "populated"; return null;');
@@ -165,28 +170,55 @@ try {
 				const panel = document.querySelector('[data-home-panel=referrals]'), nav = document.querySelector('#appNavigation').getBoundingClientRect();
 				return panel.scrollWidth <= innerWidth && panel.getBoundingClientRect().bottom <= nav.top + 1 &&
 					document.querySelector('#referralInvited').textContent === '5' && document.querySelector('#referralReached').textContent === '2' &&
-					document.querySelector('#referralLink').readOnly && document.querySelector('#referralLink').value === 'https://t.me/alodvipbot?startapp=ref_67890' &&
+					document.querySelector('#referralLink').readOnly && document.querySelector('#referralLink').value === 'https://t.me/hexarushbot?startapp=ref_67890' &&
 					document.querySelector('#referralLink').scrollWidth <= document.querySelector('#referralLink').clientWidth + 1 &&
 					document.querySelector('#referralLink').scrollHeight <= document.querySelector('#referralLink').clientHeight + 1 &&
 					panel.textContent.includes('Referral rewards are not active') && panel.textContent.includes('FRIENDS JOINED') &&
 					panel.textContent.includes('PLAYED 3 GAMES') && !/verified|entitlement|unflagged|backfill|attribution|aggregate counts/i.test(panel.textContent) && panel.querySelectorAll('textarea').length === 1;
 			`), true, 'responsive aggregate-only referral display at ' + width + 'x' + height);
+			assert.equal(await evaluate(`
+				const panel = document.querySelector('[data-home-panel=referrals]'), bounds = panel.getBoundingClientRect();
+				return Array.from(panel.querySelectorAll('.referral-hero, #referralStatus, #referralLink, #referralShare, #referralCopy, #referralSummary, .referral-steps, .referral-reward-note')).every(element => {
+					element.scrollIntoView({ block: 'center', behavior: 'instant' }); const r = element.getBoundingClientRect();
+					return r.top >= bounds.top - 1 && r.bottom <= bounds.bottom + 1 && r.left >= bounds.left && r.right <= bounds.right;
+				}) && ['referralShare', 'referralCopy', 'referralRefresh'].every(id => {
+					const r = document.getElementById(id).getBoundingClientRect(); return r.height >= 44 && r.width >= 44;
+				}) && getComputedStyle(document.querySelector('#referralShare')).backgroundImage.includes('gradient') &&
+					document.querySelector('#referralLink').labels.length === 1;
+			`), true, 'invite, stats, steps and rewards notice are reachable without navigation overlap; actions have touch-sized targets');
+			await click('#referralCopy');
+			assert.equal(await evaluate('return referralFixtureCopies.at(-1);'), 'https://t.me/hexarushbot?startapp=ref_67890', 'Copy uses the complete current-bot invite');
+			await waitFor('document.querySelector("#referralStatus").textContent.includes("copied")', 'copy confirmation did not appear');
 			await click('#referralShare');
-			assert.equal(await evaluate('return referralFixtureShares.at(-1).url;'), 'https://t.me/alodvipbot?startapp=ref_67890', 'Share uses the complete Telegram-ID invite');
+			assert.equal(await evaluate('return referralFixtureShares.at(-1).url;'), 'https://t.me/hexarushbot?startapp=ref_67890', 'Share uses the complete Telegram-ID invite');
 			assert.equal(await evaluate('return document.querySelector("#referralShare").getBoundingClientRect().bottom <= document.querySelector("#appNavigation").getBoundingClientRect().top + 1;'), true);
+			await evaluate('document.querySelector("[data-home-panel=referrals]").scrollTop = 0; return null;');
+			if (width === 320) assert.equal(await evaluate('return document.querySelector("#referralShare").getBoundingClientRect().bottom <= document.querySelector("[data-home-panel=referrals]").getBoundingClientRect().bottom;'), true, 'small-phone primary invite action is visible without scrolling');
 			await screenshot('referrals-' + (reducedMotionTest ? 'reduced-' : '') + width + 'x' + height + '-fixture');
+			if (width === 320) {
+				await evaluate('referralFixtureLink = "https://t.me/" + "a".repeat(29) + "bot?startapp=ref_9007199254740991"; return null;');
+				await click('#referralRefresh'); await waitFor('!document.querySelector("#referralRefresh").disabled', 'long invite did not settle');
+				assert.equal(await evaluate('const field = document.querySelector("#referralLink"); return field.value === referralFixtureLink && field.scrollHeight <= field.clientHeight + 1 && field.scrollWidth <= field.clientWidth + 1;'), true, 'longest bot username and safe numeric ID remain fully visible');
+				await click('#referralCopy'); await click('#referralShare');
+				assert.equal(await evaluate('return referralFixtureCopies.at(-1) === referralFixtureLink && referralFixtureShares.at(-1).url === referralFixtureLink;'), true, 'long invite Copy/Share are never truncated');
+				await evaluate('referralFixtureLink = "https://t.me/hexarushbot?startapp=ref_67890"; return null;');
+			}
 		}
 		await evaluate('referralFixtureMode = "error"; return null;'); await click('#referralRefresh');
 		await waitFor('!document.querySelector("#referralRefresh").disabled', 'referral error did not settle');
 		assert.equal(await evaluate('return document.querySelector("#referralSummary").hidden && document.querySelector("#referralLink").value === "" && document.querySelector("#referralStatus").textContent.includes("retry");'), true);
+		await screenshot('referrals-' + (reducedMotionTest ? 'reduced-' : '') + 'error-fixture');
 		await evaluate('referralFixtureMode = "delayed"; window.referralPending = loadReferrals(false); setPlayerAccount("guest"); releaseReferralFixture(); return null;');
 		await waitFor('document.querySelector("#referralRefresh").hidden', 'referral guest reset did not settle');
 		assert.equal(await evaluate('return document.querySelector("#referralLink").value === "" && document.querySelector("#referralInvited").textContent === "" && document.querySelector("#referralStatus").textContent.includes("Telegram");'), true);
+		await command('browsingContext.setViewport', { context, viewport: { width: 390, height: 844 }, devicePixelRatio: 1 });
+		await evaluate('if (window.Telegram && window.Telegram.WebApp) { window.Telegram.WebApp.viewportStableHeight = 844; if (window.smokeTelegramEvents && smokeTelegramEvents.viewportChanged) smokeTelegramEvents.viewportChanged({ isStateStable: true }); } document.querySelector("[data-home-panel=referrals]").scrollTop = 0; return null;');
+		await screenshot('referrals-' + (reducedMotionTest ? 'reduced-' : '') + 'guest-fixture');
 		assert.equal(await evaluate(`return referralFixtureRequests.every(r => r.credentials === 'same-origin' && r.cache === 'no-store' &&
 			(r.route === '/api/referrals' ? r.method === 'GET' && r.body === null : r.route === '/api/referrals/code' && r.method === 'POST' && r.body === '{}')) &&
 			referralBefore === JSON.stringify([MainHex.ct, score, playerRecords, playerPreferences]);`), true, 'only invite-code write; no claims, practice imports or game changes');
 		await click('[data-home-panel="referrals"] [data-home-tab="home"]');
-		await evaluate('window.fetch = referralPreviousFetch; if (referralPreviousShare) Object.defineProperty(navigator, "share", referralPreviousShare); else delete navigator.share; if (window.Telegram && window.Telegram.WebApp) { window.Telegram.WebApp.viewportStableHeight = referralPreviousViewport; if (window.smokeTelegramEvents && smokeTelegramEvents.viewportChanged) smokeTelegramEvents.viewportChanged({ isStateStable: true }); } setPlayerAccount(referralPreviousAccount.state, referralPreviousAccount.user, referralPreviousAccount.reason); return null;');
+		await evaluate('window.fetch = referralPreviousFetch; if (referralPreviousShare) Object.defineProperty(navigator, "share", referralPreviousShare); else delete navigator.share; if (referralPreviousClipboard) Object.defineProperty(navigator, "clipboard", referralPreviousClipboard); else delete navigator.clipboard; if (window.Telegram && window.Telegram.WebApp) { window.Telegram.WebApp.viewportStableHeight = referralPreviousViewport; if (window.smokeTelegramEvents && smokeTelegramEvents.viewportChanged) smokeTelegramEvents.viewportChanged({ isStateStable: true }); } setPlayerAccount(referralPreviousAccount.state, referralPreviousAccount.user, referralPreviousAccount.reason); return null;');
 		console.log('PASS: referral creation and owner-only progress transport fixtures, responsive copy/share controls, private aggregates, error/guest/stale states and no rewards.');
 	}
 	async function checkDaily() {

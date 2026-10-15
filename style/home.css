@@ -331,14 +331,40 @@ body[data-screen="home"] .scoreboard,
 .daily-reward-notice { margin-bottom: 18px; padding: 12px; border: 1px solid #ffdc6966; border-radius: 14px; color: #ffeaa6; background: #281234; font-size: 14px; line-height: 1.6; }
 .streak-panel { margin-top: 18px; border-color: #ffdc6999; }
 .streak-panel > strong { display: block; margin-top: 12px; font-size: 28px; color: #ffdc69; }
-.referral-invite { margin: 18px 0; }
-.referral-invite label { display: block; font-size: 14px; margin-bottom: 8px; }
-.referral-invite textarea { display: block; box-sizing: border-box; width: 100%; min-width: 0; padding: 10px; background: #281234; color: #ffe1ca; border: 1px solid #e9a4d766; border-radius: 10px; font: inherit; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; word-break: break-all; resize: none; }
-.referral-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
-.referral-actions button { flex: 1; min-width: 100px; }
-.referral-summary { margin-top: 24px; gap: 14px; }
-.referral-summary > div { min-width: 0; }
-.referral-summary .stat-label { line-height: 1.6; white-space: normal; }
+.menu-sheet.referral-sheet { width: min(460px, 100%); padding: 16px 20px 24px; }
+.referral-toolbar { display: grid; grid-template-columns: 64px minmax(0, 1fr) 64px; align-items: center; min-height: 44px; }
+.referral-toolbar .menu-back { justify-self: start; }
+.referral-toolbar .leaderboard-refresh { justify-self: end; }
+.menu-sheet .referral-toolbar h1 { margin: 0; font-size: 17px; letter-spacing: .5px; text-align: center; text-transform: none; }
+.referral-hero { padding: 22px 0 24px; text-align: center; }
+.referral-emblem { position: relative; width: 72px; height: 72px; margin-bottom: 14px; border: 1px solid #ffbda177; border-radius: 24px; background: linear-gradient(140deg, #a9577e, #4a2455); box-shadow: inset 0 1px 0 #ffe1ca55, 0 8px 24px #190c2844; }
+.referral-emblem::before, .referral-emblem::after { content: ''; position: absolute; width: 22px; height: 25px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+.referral-emblem::before { left: -34px; top: 8px; background: linear-gradient(145deg, #ffe89c, #d99539); transform: rotate(-16deg); }
+.referral-emblem::after { right: -31px; bottom: 5px; width: 17px; height: 20px; background: linear-gradient(145deg, #b0f3db, #54b7aa); transform: rotate(18deg); }
+.menu-sheet .referral-hero h2 { margin: 0; font-size: clamp(25px, 6.8vw, 32px); font-weight: 800; letter-spacing: -.6px; text-transform: none; color: #fff; }
+.referral-hero h2 span { color: #ffe1ca; }
+.referral-hero p { margin-top: 8px; font-size: 14px; line-height: 1.5; color: var(--muted); }
+.referral-invite-panel { padding: 18px; border: 1px solid #e9a4d766; border-radius: 22px; background: linear-gradient(145deg, #64345788, #281234); box-shadow: inset 0 1px 0 #ffd1e718; }
+.menu-sheet .referral-invite-panel h2 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: 0; text-transform: none; color: #fff; }
+.referral-status { margin: 8px 0 14px; font-size: 13px; line-height: 1.6; color: var(--muted); overflow-wrap: anywhere; }
+.referral-create { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 48px; padding: 12px 16px; font-size: 14px; }
+.referral-create span { font-size: 22px; }
+.referral-invite label { display: block; font-size: 11px; margin-bottom: 7px; color: var(--muted); }
+.referral-invite textarea { display: block; box-sizing: border-box; width: 100%; min-width: 0; padding: 10px; background: #21102e; color: #ffe1ca; border: 1px solid #e9a4d744; border-radius: 12px; font: inherit; font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; word-break: break-all; resize: none; }
+.referral-invite textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.referral-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+.referral-actions button { display: flex; justify-content: center; align-items: center; gap: 7px; min-width: 0; min-height: 48px; margin: 0; padding: 11px 8px; font-size: 13px; letter-spacing: 0; border-radius: 13px; }
+.referral-actions svg, .referral-stat-top svg { width: 19px; height: 19px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.referral-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 16px; gap: 12px; }
+.referral-summary > div { min-width: 0; padding: 14px; border: 1px solid #e9a4d744; border-radius: 18px; background: #28123488; color: #ffbeaa; }
+.referral-summary > div + div { color: #9ce8ca; }
+.referral-stat-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.referral-stat-top strong { min-width: 0; font-size: 30px; line-height: 1.1; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.referral-summary .stat-label { margin-top: 10px; font-size: 9px; letter-spacing: .9px; line-height: 1.6; white-space: normal; }
+.referral-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; list-style: none; margin: 22px 0 18px; text-align: center; }
+.referral-steps li { font-size: 12px; line-height: 1.5; color: var(--muted); }
+.referral-steps span { display: grid; place-items: center; width: 26px; height: 26px; margin: 0 auto 8px; border: 1px solid #e9a4d766; border-radius: 50%; color: #ffe1ca; font-size: 11px; }
+.referral-reward-note { padding-top: 14px; border-top: 1px solid #e9a4d733; font-size: 12px; line-height: 1.6; color: var(--muted); text-align: center; }
 .leaderboard-toolbar { display: flex; align-items: center; justify-content: space-between; }
 .leaderboard-refresh { width: 44px; height: 44px; border-radius: 14px; background: #713759; border: 1px solid #e9a4d788; color: #fff; font-size: 28px; }
 .leaderboard-heading { display: flex; align-items: center; gap: 12px; margin: 16px 0 24px; }
@@ -692,6 +718,18 @@ body[data-screen="home"] .scoreboard,
 	.pause-button {
 		top: max(16px, var(--safe-top));
 	}
+}
+
+/* Keep inviting ahead of decoration when Telegram's usable sheet is short. */
+@container title-scene (max-height: 620px) {
+	.menu-sheet.referral-sheet { padding-top: 8px; }
+	.referral-hero { display: grid; grid-template-columns: 48px minmax(0, 1fr); column-gap: 14px; padding: 14px 0 18px; text-align: left; }
+	.referral-emblem { grid-row: span 2; width: 48px; height: 48px; margin: 0; border-radius: 16px; }
+	.referral-emblem svg { width: 32px; height: 32px; }
+	.referral-emblem::before, .referral-emblem::after { display: none; }
+	.menu-sheet .referral-hero h2 { align-self: end; font-size: 23px; }
+	.referral-hero p { margin-top: 4px; font-size: 12px; }
+	.referral-invite-panel { padding: 16px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

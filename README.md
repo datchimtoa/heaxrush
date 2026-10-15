@@ -286,18 +286,29 @@ SDK loads only on Telegram launches. See
 ## Non-paying referrals (Phase 2D)
 
 The owner approved the documented progress-only rules and supplied `@alodvipbot`.
-Set `TELEGRAM_BOT_USERNAME=alodvipbot` in the environment, alongside the existing
-bot token/database. It is optional: missing configuration disables the referral
+The owner now reports the Render deployment at <https://hexarush.onrender.com>
+and the current bot **@hexarushbot**. Set `TELEGRAM_BOT_USERNAME=hexarushbot`
+in Render's environment, alongside the matching bot's private token and existing
+database. It is optional: missing configuration disables the referral
 API and attribution, without breaking normal login/streaks. `render.yaml` declares
 the setting. Following explicit approval in `/home/devroom/hetris/next.md`, the
-active preview now has this username configured and migration 006 applied.
+local preview was configured with the previous bot and migration 006 applied.
+The UI uses the authenticated API's link, never a hardcoded bot username; this
+visual update does not change Render or local private environment settings.
 The Main Mini App must be configured in BotFather. Invitations use
-`https://t.me/alodvipbot?startapp=ref_<telegram-user-id>`, using the owner's
+`https://t.me/hexarushbot?startapp=ref_<telegram-user-id>`, using the owner's
 numeric Telegram ID, not the application's UUID or a quick-tunnel address.
 The owner explicitly requested this public link format; sharing the link exposes
 the referrer's Telegram ID. Telegram carries `startapp` into
 signed launch data; an unsigned `ref=` URL query is not used for attribution.
 Verify real signed `start_param` delivery on a Telegram device before release.
+
+Referrals uses a compact friends hero, one invite panel, a primary **Share invite**
+action and secondary **Copy link** action. The complete link stays selectable and
+wraps on phones. Two crew tiles show **Friends joined** and **Played 3 games** only
+after account data loads; the three-step guide and rewards-inactive notice remain
+visible to guests. Loading, retry, copy fallback and account-change clearing are
+preserved. This is a presentation update, not a reward or referral-policy change.
 
 Migration `006_referrals.sql` creates initially empty code/relationship tables.
 New display links use the owner's server-stored Telegram ID, not a generated code.
@@ -530,7 +541,7 @@ genuine-device release gates remain open; earning stays disabled.
    as **one Node Web Service**, with the repository root as the application root.
    Build: `npm ci --omit=dev`. Start: `npm start`. Health check: `/api/health`.
    Set `NODE_ENV=production`, `NODE_VERSION=22.22.0`, `TELEGRAM_BOT_TOKEN`,
-   `TELEGRAM_BOT_USERNAME=alodvipbot`, and the approved `DATABASE_URL` privately
+   `TELEGRAM_BOT_USERNAME=hexarushbot`, and the approved `DATABASE_URL` privately
    in Render. `APP_ORIGIN` defaults to `RENDER_EXTERNAL_URL`; if set explicitly,
    it must be the exact stable HTTPS origin, not a temporary preview URL.
    **Do not blindly apply `render.yaml`: it provisions a new database.** To keep

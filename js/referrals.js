@@ -49,7 +49,7 @@ async function loadReferrals(create) {
 		$('#referralSummary').prop('hidden', false);
 		$('#referralInvited').text(data.invitedAccounts.toLocaleString());
 		$('#referralReached').text(data.reachedAccounts.toLocaleString());
-		$('#referralStatus').text(data.invitedAccounts === 0 ? 'Your crew starts here. Invite a friend to join Hexa Rush!' : 'Your crew is growing. Keep the games going!');
+		$('#referralStatus').text(data.inviteLink === null ? 'Create your link. Invite a friend who is new to Hexa Rush.' : 'Your link is ready. Send it to a friend who is new to Hexa Rush.');
 	} catch (error) {
 		if (generation === referralGeneration) $('#referralStatus').text('Could not load your invites. Tap ↻ to retry.');
 	} finally {
@@ -62,11 +62,11 @@ async function copyReferralLink() {
 	var generation = referralGeneration;
 	try {
 		await navigator.clipboard.writeText(referralInviteLink);
-		if (generation === referralGeneration) $('#referralStatus').text('Invite copied. Share it with a friend.');
+		if (generation === referralGeneration) $('#referralStatus').text('Link copied. Your next challenger is one message away.');
 	} catch (error) {
 		if (generation !== referralGeneration) return;
 		var field = document.getElementById('referralLink'); field.focus(); field.select();
-		$('#referralStatus').text('Copy is unavailable here. Select and copy the invite link above.');
+		$('#referralStatus').text('Select the invite link below and copy it to share.');
 	}
 }
 
@@ -77,9 +77,9 @@ async function shareReferralLink() {
 		if (navigator.share) await navigator.share({ title: 'Hexa Rush', text: 'Rotate. Match. Beat your best. Join me in Hexa Rush!', url: referralInviteLink });
 		else if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
 			window.Telegram.WebApp.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(referralInviteLink) + '&text=' + encodeURIComponent('Rotate. Match. Beat your best. Join me in Hexa Rush!'));
-		} else $('#referralStatus').text('Sharing is unavailable here. Use Copy invite instead.');
+		} else $('#referralStatus').text('Sharing is unavailable here. Use Copy link instead.');
 	} catch (error) {
-		if (generation === referralGeneration) $('#referralStatus').text(error.name === 'AbortError' ? 'Share cancelled. Your invite is still available.' : 'Sharing unavailable. Use Copy invite instead.');
+		if (generation === referralGeneration) $('#referralStatus').text(error.name === 'AbortError' ? 'Share cancelled. Your invite is still available.' : 'Sharing unavailable. Use Copy link instead.');
 	}
 }
 

@@ -3,6 +3,37 @@
 Based on Hextris `master`, commit `8872ec47d694628e2fe668ebaa90b13d5626d95f`.
 Original authors and GPLv3-or-later licensing are retained.
 
+## style: make Referrals a focused invite screen
+
+- Replaced stacked notices and the oversized link field with a compact friends
+  hero, a single invite panel, gold Share invite action, secondary Copy link,
+  two crew-stat tiles and a short three-step guide. The rewards-inactive notice
+  remains visible without dominating the page. No fake friends or rewards.
+- Kept the complete wrapping, read-only numeric-ID invite and explicit creation,
+  loading, guest/error/retry, copy/select fallback, and stale-account safeguards.
+  Added responsive control/content and maximum numeric-link Copy/Share checks.
+- The owner reports Render at `https://hexarush.onrender.com` and the current bot
+  `@hexarushbot`; its public health check returned 200. Documentation now uses
+  the current bot. Links still come from backend configuration, not hardcoded UI.
+  No production/local private environment edits, backend/schema changes or reward
+  activation are part of this visual update. The owner subsequently authorized
+  committing/pushing this redesign and future completed, validated updates to
+  `main`; Render deployment settings remain owner-managed.
+
+Validation: 193 tests passed, 2 disposable-PostgreSQL suites skipped; standalone
+gameplay 15/15, all 69 JS/CJS/MJS syntax checks and diff whitespace passed. Final
+normal and genuine reduced-motion Firefox passed sequentially against the Node
+preview at 390×844, 320×568 and 568×320. The short-sheet layout keeps the primary
+invite action initially visible on the small phone; all content remains scrollable
+above navigation. Full links, maximum bot-name/numeric-ID length, exact Copy/Share,
+guest/create/error states and account isolation passed with transport fixtures,
+not real Telegram referrals. Screenshots were reviewed; backend/private config,
+schema, reward policy, fixed rules, original master/Answers and GPL are unchanged.
+Evidence: ignored `.test-artifacts/referral-redesign-*`, including the initial
+failed focused check before its outdated copy/markup assertions were corrected.
+Render health/title/referral asset returned 200 and unauthenticated referrals 401;
+these endpoint checks do not validate its bot configuration, live invites or uptime.
+
 ## chore: prepare the source repository for owner-managed deployment
 
 - The owner authorized committing and pushing the game/service source to

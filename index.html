@@ -100,16 +100,27 @@
 				</div>
 			</section>
 			<section data-home-panel="referrals" class="game-menu-screen" aria-labelledby="referralsTitle" hidden>
-				<div class="menu-sheet achievement-sheet">
-					<div class="leaderboard-toolbar"><button data-home-tab="home" class="menu-back">← Home</button><button id="referralRefresh" class="leaderboard-refresh" aria-label="Refresh referral progress" hidden>↻</button></div>
-					<div class="leaderboard-heading"><span class="feature-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path class="icon-light" d="M15 14a5 5 0 0 1 7 5v2h-7Z"/><circle class="icon-light" cx="17" cy="8" r="3"/><path d="M2 21v-3a6 6 0 0 1 12 0v3Z"/><circle cx="8" cy="7" r="4"/></svg></span><h1 id="referralsTitle">Referrals</h1></div>
-					<p class="achievement-intro">Bring a friend. Find your rhythm together.</p>
-					<p class="daily-reward-notice">Play together for fun. Referral rewards are not active.</p>
-					<p id="referralStatus" class="leaderboard-status" role="status">Open in Telegram to invite friends.</p>
-					<button id="referralCreate" class="secondary-button" hidden>Create my invite</button>
-					<div id="referralInvite" class="referral-invite" hidden><label for="referralLink">Your invite link</label><textarea id="referralLink" rows="4" readonly spellcheck="false" autocomplete="off" wrap="soft"></textarea><div class="referral-actions"><button id="referralCopy" class="secondary-button">Copy invite</button><button id="referralShare" class="secondary-button">Share</button></div></div>
-					<div id="referralSummary" class="record-summary referral-summary" hidden><div><span class="stat-label">FRIENDS JOINED</span><strong id="referralInvited"></strong></div><div><span class="stat-label">PLAYED 3 GAMES</span><strong id="referralReached"></strong></div></div>
-					<p class="achievement-note">Invite friends who are new to Hexa Rush. See how many join and finish their first 3 games.</p>
+				<div class="menu-sheet referral-sheet">
+					<header class="referral-toolbar"><button data-home-tab="home" class="menu-back">← Home</button><h1 id="referralsTitle">Referrals</h1><button id="referralRefresh" class="leaderboard-refresh" aria-label="Refresh referral progress" hidden>↻</button></header>
+					<div class="referral-hero">
+						<span class="feature-symbol referral-emblem" aria-hidden="true"><svg viewBox="0 0 24 24"><path class="icon-light" d="M15 14a5 5 0 0 1 7 5v2h-7Z"/><circle class="icon-light" cx="17" cy="8" r="3"/><path d="M2 21v-3a6 6 0 0 1 12 0v3Z"/><circle cx="8" cy="7" r="4"/></svg></span>
+						<h2>Better with <span>friends.</span></h2><p>Bring your crew. Beat your best.</p>
+					</div>
+					<div class="referral-invite-panel" role="group" aria-labelledby="referralInviteTitle">
+						<h2 id="referralInviteTitle">Pass on the challenge</h2>
+						<p id="referralStatus" class="referral-status" role="status">Open in Telegram to invite friends.</p>
+						<button id="referralCreate" class="primary-button referral-create" hidden>Create invite link <span aria-hidden="true">↗</span></button>
+						<div id="referralInvite" class="referral-invite" hidden>
+							<label for="referralLink">Your invite link</label><textarea id="referralLink" rows="3" readonly spellcheck="false" autocomplete="off" wrap="soft"></textarea>
+							<div class="referral-actions"><button id="referralShare" class="primary-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 3-6 18-4-8-8-4Z M11 13 21 3"/></svg>Share invite</button><button id="referralCopy" class="secondary-button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M15 8V3H3v12h5"/></svg>Copy link</button></div>
+						</div>
+					</div>
+					<div id="referralSummary" class="referral-summary" role="group" aria-label="Your crew" hidden>
+						<div><div class="referral-stat-top"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M3 20v-3a6 6 0 0 1 12 0v3 M17 4a3 3 0 0 1 0 6 M18 14a5 5 0 0 1 3 5"/></svg><strong id="referralInvited"></strong></div><span class="stat-label">FRIENDS JOINED</span></div>
+						<div><div class="referral-stat-top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 9 5v10l-9 5-9-5V7Z m-4 10 3 3 5-6"/></svg><strong id="referralReached"></strong></div><span class="stat-label">PLAYED 3 GAMES</span></div>
+					</div>
+					<ol class="referral-steps" aria-label="How invites work"><li><span aria-hidden="true">1</span>Share your link</li><li><span aria-hidden="true">2</span>A new friend joins</li><li><span aria-hidden="true">3</span>They play 3 games</li></ol>
+					<p class="referral-reward-note">Referral rewards are not active.</p>
 				</div>
 			</section>
 			<section data-home-panel="wallet" class="game-menu-screen" aria-labelledby="walletTitle" hidden>
