@@ -1,17 +1,17 @@
 function render() {
-	var grey = '#bdc3c7';
+	var grey = '#dd9dcf';
 	if (gameState === 0) {
-		grey = "rgb(220, 223, 225)";
+		grey = '#c47bad';
 	}
 	
-	ctx.clearRect(0, 0, trueCanvas.width, trueCanvas.height);
 	clearGameBoard();
 	if (gameState === 1 || gameState === 2 || gameState === -1 || gameState === 0) {
 		if (op < 1) {
 			op += 0.01;
 		}
 		ctx.globalAlpha = op;
-		drawPolygon(trueCanvas.width / 2 , trueCanvas.height / 2 , 6, (settings.rows * settings.blockHeight) * (2/Math.sqrt(3)) + settings.hexWidth, 30, grey, false,6);
+		drawPolygon(trueCanvas.width / 2 , trueCanvas.height / 2 , 6, (settings.rows * settings.blockHeight) * (2/Math.sqrt(3)) + settings.hexWidth, 30, '#281234', 3 * settings.scale, grey);
+		if (typeof drawBoardGuides === 'function') drawBoardGuides();
 		drawTimer();
 		ctx.globalAlpha = 1;
 	}
@@ -28,6 +28,7 @@ function render() {
 	}
 
 	MainHex.draw();
+	if (typeof drawClearEffects === 'function') drawClearEffects();
 	if (gameState ==1 || gameState ==-1 || gameState === 0) {
 		drawScoreboard();
 	}
@@ -40,22 +41,9 @@ function render() {
 		}
 	}
 
-	if ((MainHex.ct < 650 && (gameState !== 0) && !MainHex.playThrough)) {
-		if (MainHex.ct > (650 - 50)) {
-			ctx.globalAlpha = (50 - (MainHex.ct - (650 - 50)))/50;
-		}
-
-		if (MainHex.ct < 50) {
-			ctx.globalAlpha = (MainHex.ct)/50;
-		}
-
-		renderBeginningText();
-		ctx.globalAlpha = 1;
-	}
-
 	if (gameState == -1) {
 		ctx.globalAlpha = 0.9;
-		ctx.fillStyle = 'rgb(236,240,241)';
+		ctx.fillStyle = '#190c28';
 		ctx.fillRect(0, 0, trueCanvas.width, trueCanvas.height);
 		ctx.globalAlpha = 1;
 	}
@@ -65,53 +53,46 @@ function render() {
 	settings.blockHeight = settings.baseBlockHeight * settings.scale;
 }
 
-function renderBeginningText() {
-	var upperheight = (trueCanvas.height/2) - ((settings.rows * settings.blockHeight) * (2/Math.sqrt(3))) * (5/6);
-	var lowerheight = (trueCanvas.height/2) + ((settings.rows * settings.blockHeight) * (2/Math.sqrt(3))) * (11/16);
-    var text = '';
-    var mob, fontSize;
-    if(/mobile|Mobile|iOS|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-        mob = true;
-        input_text = 'Tap the screen\'s left and right'
-        action_text = 'sides to rotate the hexagon'
-        score_text = 'Match 3+ blocks to score'
-        fontSize = 35
-    } else {
-        mob = false
-        input_text = 'Use the right and left arrow keys'
-        action_text = 'to rotate the hexagon'
-        score_text = 'Match 3+ blocks to score!'
-        fontSize = 27
-    }
-	renderText((trueCanvas.width)/2 + 2 * settings.scale,upperheight-0*settings.scale, fontSize, '#2c3e50', input_text);
-	renderText((trueCanvas.width)/2 + 2 * settings.scale,upperheight+33*settings.scale, fontSize, '#2c3e50', action_text);
-    if (!mob) {
-	    drawKey("",(trueCanvas.width)/2 + 2 * settings.scale-2.5,upperheight+38*settings.scale);
-    }
-
-	renderText((trueCanvas.width)/2 + 2 * settings.scale,lowerheight,fontSize, '#2c3e50', score_text);
-}
-
-function drawKey(key, x, y) {
-	ctx.save();
-	switch (key) {
-		case "left":
-			ctx.translate(x, y + settings.scale * 13);
-			ctx.rotate(3.14159);
-			ctx.font = "20px Fontawesome";
-			ctx.scale(settings.scale, settings.scale);
-			ctx.fillText(String.fromCharCode("0xf04b"), 0, 0);
-			break;
-		case "right":
-			ctx.font = "20px Fontawesome";
-			ctx.translate(x , y + settings.scale * 27.5);
-			ctx.scale(settings.scale, settings.scale);
-			ctx.fillText(String.fromCharCode("0xf04b"), 0, 0);
-			break;
-		
-		default:
-			drawKey("left", x - 5, y);
-			drawKey("right", x + 5, y);
+// Attract screen only: no gameplay clock, spawning, clears, or saved results.
+function renderTitleBoard(now) {
+	clearGameBoard();
+	var reducedMotion = typeof reducedGameMotion === 'function' ? reducedGameMotion() : window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	var angle = 30 + (reducedMotion ? 0 : Math.sin(now / 6000) * 12);
+	var x = trueCanvas.width / 2;
+	var y = trueCanvas.height / 2;
+	var titleScale = settings.scale;
+	if (trueCanvas.width < trueCanvas.height && trueCanvas.height < 600) {
+		y = trueCanvas.height * 0.45;
+		titleScale = Math.min(titleScale, trueCanvas.height / 1300);
 	}
+	var radius = 105 * titleScale;
+	ctx.save();
+	drawPolygon(x, y, 6, radius, angle, '#5c2c5e', 2, '#efaada');
+	for (var layer = 0; layer < 2; layer++) {
+		for (var side = 0; side < 6; side++) {
+			var inner = radius + (10 + layer * 26) * titleScale;
+			var outer = inner + 20 * titleScale;
+			ctx.beginPath();
+			[[inner, side], [inner, side + 1], [outer, side + 1], [outer, side]].forEach(function(vertex, index) {
+				var point = rotatePoint(0, vertex[0], angle + vertex[1] * 60);
+				if (index === 0) ctx.moveTo(x + point.x, y + point.y);
+				else ctx.lineTo(x + point.x, y + point.y);
+			});
+			ctx.closePath();
+			ctx.fillStyle = colors[(side + layer * 2) % colors.length];
+			ctx.globalAlpha = 1;
+			ctx.strokeStyle = hexagonBackgroundColor;
+			ctx.lineWidth = 4 * settings.scale;
+			if (typeof drawJewelTile === 'function') {
+				var points = [[inner, side], [inner, side + 1], [outer, side + 1], [outer, side]].map(function(vertex) {
+					var point = rotatePoint(0, vertex[0], angle + vertex[1] * 60);
+					return { x: x + point.x, y: y + point.y };
+				});
+				drawJewelTile(points, colors[(side + layer * 2) % colors.length], 1);
+			} else { ctx.fill(); ctx.stroke(); }
+		}
+	}
+	ctx.globalAlpha = 1;
+	renderText(x, y, 62, '#ffd322', '✦');
 	ctx.restore();
 }

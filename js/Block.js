@@ -1,7 +1,7 @@
 function Block(fallingLane, color, iter, distFromHex, settled) {
 	// whether or not a block is rested on the center hex or another block
 	this.settled = (settled === undefined) ? 0 : 1;
-	this.height = settings.blockHeight;
+	this.height = settings.baseBlockHeight;
 	//the lane which the block was shot from
 	this.fallingLane = fallingLane;
 
@@ -30,7 +30,7 @@ function Block(fallingLane, color, iter, distFromHex, settled) {
 	//side which block is attached too
 	this.attachedLane = 0;
 	//distance from center hex
-	this.distFromHex = distFromHex || settings.startDist * settings.scale ;
+	this.distFromHex = distFromHex || settings.startDist;
 
 	this.incrementOpacity = function() {
 		if (this.deleted) {
@@ -51,9 +51,6 @@ function Block(fallingLane, color, iter, distFromHex, settled) {
 				//slate for final deletion
 				this.opacity = 0;
 				this.deleted = 2;
-				if (gameState == 1 || gameState==0) {
-					localStorage.setItem("saveState", exportSaveState());
-				}
 			}
 		}
 	};
@@ -69,32 +66,15 @@ function Block(fallingLane, color, iter, distFromHex, settled) {
 	};
 
 	this.draw = function(attached, index) {
-		this.height = settings.blockHeight;
-		if (Math.abs(settings.scale - settings.prevScale) > 0.000000001) {
-			this.distFromHex *= (settings.scale/settings.prevScale);
-		}
-
-		this.incrementOpacity();
+		var distance = this.distFromHex * settings.scale;
+		var height = this.height * settings.scale;
 		if(attached === undefined)
 			attached = false;
 
-		if(this.angle > this.targetAngle) {
-			this.angularVelocity -= angularVelocityConst * MainHex.dt;
-		}
-		else if(this.angle < this.targetAngle) {
-			this.angularVelocity += angularVelocityConst * MainHex.dt;
-		}
-
-		if (Math.abs(this.angle - this.targetAngle + this.angularVelocity) <= Math.abs(this.angularVelocity)) { //do better soon
-			this.angle = this.targetAngle;
-			this.angularVelocity = 0;
-		}
-		else {
-			this.angle += this.angularVelocity;
-		}
+		this.angle = easeRotationAngle(this.angle, this.targetAngle);
 		
-		this.width = 2 * this.distFromHex / Math.sqrt(3);
-		this.widthWide = 2 * (this.distFromHex + this.height) / Math.sqrt(3);
+		this.width = 2 * distance / Math.sqrt(3);
+		this.widthWide = 2 * (distance + height) / Math.sqrt(3);
 		//this.widthWide = this.width + this.height + 3;
 		var p1;
 		var p2;
@@ -105,18 +85,15 @@ function Block(fallingLane, color, iter, distFromHex, settled) {
 			if (rat > 1) {
 				rat = 1;
 			}
-			p1 = rotatePoint((-this.width / 2) * rat, this.height / 2, this.angle);
-			p2 = rotatePoint((this.width / 2) * rat, this.height / 2, this.angle);
-			p3 = rotatePoint((this.widthWide / 2) * rat, -this.height / 2, this.angle);
-			p4 = rotatePoint((-this.widthWide / 2) * rat, -this.height / 2, this.angle);
-			if ((MainHex.ct - this.ict) >= this.initLen) {
-				this.initializing = 0;
-			}
+			p1 = rotatePoint((-this.width / 2) * rat, height / 2, this.angle);
+			p2 = rotatePoint((this.width / 2) * rat, height / 2, this.angle);
+			p3 = rotatePoint((this.widthWide / 2) * rat, -height / 2, this.angle);
+			p4 = rotatePoint((-this.widthWide / 2) * rat, -height / 2, this.angle);
 		} else {
-			p1 = rotatePoint(-this.width / 2, this.height / 2, this.angle);
-			p2 = rotatePoint(this.width / 2, this.height / 2, this.angle);
-			p3 = rotatePoint(this.widthWide / 2, -this.height / 2, this.angle);
-			p4 = rotatePoint(-this.widthWide / 2, -this.height / 2, this.angle);
+			p1 = rotatePoint(-this.width / 2, height / 2, this.angle);
+			p2 = rotatePoint(this.width / 2, height / 2, this.angle);
+			p3 = rotatePoint(this.widthWide / 2, -height / 2, this.angle);
+			p4 = rotatePoint(-this.widthWide / 2, -height / 2, this.angle);
 		}
 
 		if (this.deleted) {
@@ -134,8 +111,8 @@ function Block(fallingLane, color, iter, distFromHex, settled) {
 		}
 
 		ctx.globalAlpha = this.opacity;
-		var baseX = trueCanvas.width / 2 + Math.sin((this.angle) * (Math.PI / 180)) * (this.distFromHex + this.height / 2) + gdx;
-		var baseY = trueCanvas.height / 2 - Math.cos((this.angle) * (Math.PI / 180)) * (this.distFromHex + this.height / 2) + gdy;
+		var baseX = trueCanvas.width / 2 + Math.sin((this.angle) * (Math.PI / 180)) * (distance + height / 2) + gdx;
+		var baseY = trueCanvas.height / 2 - Math.cos((this.angle) * (Math.PI / 180)) * (distance + height / 2) + gdy;
 		ctx.beginPath();
 		ctx.moveTo(baseX + p1.x, baseY + p1.y);
 		ctx.lineTo(baseX + p2.x, baseY + p2.y);
@@ -143,18 +120,11 @@ function Block(fallingLane, color, iter, distFromHex, settled) {
 		ctx.lineTo(baseX + p4.x, baseY + p4.y);
 		//ctx.lineTo(baseX + p1.x, baseY + p1.y);
 		ctx.closePath();
-		ctx.fill();
+		if (typeof drawJewelTile === 'function') {
+			drawJewelTile([p1, p2, p3, p4].map(function(point) { return { x: baseX + point.x, y: baseY + point.y }; }), this.deleted ? '#fff4d6' : this.color, this.opacity);
+		} else ctx.fill();
 
 		if (this.tint) {
-			if (this.opacity < 1) {
-				if (gameState == 1 || gameState==0) {
-					localStorage.setItem("saveState", exportSaveState());
-				}
-
-				this.iter = 2.25;
-				this.tint = 0;
-			}
-
 			ctx.fillStyle = "#FFF";
 			ctx.globalAlpha = this.tint;
 			ctx.beginPath();
@@ -165,10 +135,6 @@ function Block(fallingLane, color, iter, distFromHex, settled) {
 			ctx.lineTo(baseX + p1.x, baseY + p1.y);
 			ctx.closePath();
 			ctx.fill();
-			this.tint -= 0.02 * MainHex.dt;
-			if (this.tint < 0) {
-				this.tint = 0;
-			}
 		}
 
 		ctx.globalAlpha = 1;
@@ -179,7 +145,7 @@ function findCenterOfBlocks(arr) {
 	var avgDFH = 0;
 	var avgAngle = 0;
 	for (var i = 0; i < arr.length; i++) {
-		avgDFH += arr[i].distFromHex;
+		avgDFH += arr[i].distFromHex * settings.scale;
 		var ang = arr[i].angle;
 		while (ang < 0) {
 			ang += 360;

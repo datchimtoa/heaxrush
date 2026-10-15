@@ -1,7 +1,7 @@
 function Hex(sideLength) {
 	this.playThrough = 0;
-	this.fillColor = [44,62,80];
-	this.tempColor = [44,62,80];
+	this.fillColor = [35,46,72];
+	this.tempColor = [35,46,72];
 	this.angularVelocity = 0;
 	this.position = 0;
 	this.dy = 0;
@@ -16,11 +16,17 @@ function Hex(sideLength) {
 	this.x = trueCanvas.width / 2;
 	this.y = trueCanvas.height / 2;
 	this.ct = 0;
+	this.comboClock = 0;
+	this.comboMultiplier = 1;
+	this.bestCombo = 1;
+	this.clearedBlocks = 0;
+	this.runRecorded = false;
+	this.clearChain = null;
 	this.lastCombo = this.ct - settings.comboTime;
 	this.lastColorScored = "#000";
 	this.comboTime = 1;
 	this.texts = [];
-		this.lastRotate = Date.now();
+	this.lastRotate = -5;
 	for (var i = 0; i < this.sides; i++) {
 		this.blocks.push([]);
 	}
@@ -50,7 +56,7 @@ function Hex(sideLength) {
 		this.shakes.push({lane:block.fallingLane, magnitude:4.5 * (window.devicePixelRatio ? window.devicePixelRatio : 1) * (settings.scale)});
 		lane += this.position;
 		lane = (lane + this.sides) % this.sides;
-		block.distFromHex = MainHex.sideLength / 2 * Math.sqrt(3) + block.height * this.blocks[lane].length;
+		block.distFromHex = settings.baseHexWidth / 2 * Math.sqrt(3) + block.height * this.blocks[lane].length;
 		this.blocks[lane].push(block);
 		block.attachedLane = lane;
 		block.checked = 1;
@@ -62,10 +68,10 @@ function Hex(sideLength) {
 		}
 
 		if (position !== undefined) {
-			arr = tArr;
+			var arr = tArr;
 			if (position <= 0) {
-				if (block.distFromHex - block.iter * this.dt * settings.scale - (this.sideLength / 2) * Math.sqrt(3) <= 0) {
-					block.distFromHex = (this.sideLength / 2) * Math.sqrt(3);
+				if (block.distFromHex - block.iter * this.dt - (settings.baseHexWidth / 2) * Math.sqrt(3) <= 0) {
+					block.distFromHex = (settings.baseHexWidth / 2) * Math.sqrt(3);
 					block.settled = 1;
 					block.checked = 1;
 				} else {
@@ -73,7 +79,7 @@ function Hex(sideLength) {
 					block.iter = 1.5 + (waveone.difficulty/15) * 3;
 				}
 			} else {
-				if (arr[position - 1].settled && block.distFromHex - block.iter * this.dt * settings.scale - arr[position - 1].distFromHex - arr[position - 1].height <= 0) {
+				if (arr[position - 1].settled && block.distFromHex - block.iter * this.dt - arr[position - 1].distFromHex - arr[position - 1].height <= 0) {
 					block.distFromHex = arr[position - 1].distFromHex + arr[position - 1].height;
 					block.settled = 1;
 					block.checked = 1;
@@ -91,13 +97,13 @@ function Hex(sideLength) {
 			var arr = this.blocks[lane];
 
 			if (arr.length > 0) {
-				if (block.distFromHex + block.iter * this.dt * settings.scale - arr[arr.length - 1].distFromHex - arr[arr.length - 1].height <= 0) {
+				if (block.distFromHex - block.iter * this.dt - arr[arr.length - 1].distFromHex - arr[arr.length - 1].height <= 0) {
 					block.distFromHex = arr[arr.length - 1].distFromHex + arr[arr.length - 1].height;
 					this.addBlock(block);
 				}
 			} else {
-				if (block.distFromHex + block.iter * this.dt * settings.scale - (this.sideLength / 2) * Math.sqrt(3) <= 0) {
-					block.distFromHex = (this.sideLength / 2) * Math.sqrt(3);
+				if (block.distFromHex - block.iter * this.dt - (settings.baseHexWidth / 2) * Math.sqrt(3) <= 0) {
+					block.distFromHex = (settings.baseHexWidth / 2) * Math.sqrt(3);
 					this.addBlock(block);
 				}
 			}
@@ -105,19 +111,8 @@ function Hex(sideLength) {
 	};
 
 	this.rotate = function(steps) {
-				if(Date.now()-this.lastRotate<75 && !(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) ) return;
-		if (!(gameState === 1 || gameState === 0)) return;
+		if (this.comboClock - this.lastRotate < 5 || gameState !== 1) return false;
 		this.position += steps;
-		if (!history[this.ct]) {
-			history[this.ct] = {};
-		}
-
-		if (!history[this.ct].rotate) {
-			history[this.ct].rotate = steps;
-		}
-		else {
-			history[this.ct].rotate += steps;
-		}
 
 		while (this.position < 0) {
 			this.position += 6;
@@ -131,7 +126,9 @@ function Hex(sideLength) {
 		});
 
 		this.targetAngle = this.targetAngle - steps * 60;
-				this.lastRotate = Date.now();
+		this.lastRotate = this.comboClock;
+		gameFeedback('rotate');
+		return true;
 	};
 
 	this.draw = function() {
@@ -143,25 +140,12 @@ function Hex(sideLength) {
 		this.sideLength = settings.hexWidth;
 		gdx = 0;
 		gdy = 0;
-		for (var i = 0; i < this.shakes.length; i++) {
-			this.shake(this.shakes[i]);
-		}
-		if (this.angle > this.targetAngle) {
-			this.angularVelocity -= angularVelocityConst * this.dt;
-		}
-		else if(this.angle < this.targetAngle) {
-			this.angularVelocity += angularVelocityConst * this.dt;
-		}
-
-		if (Math.abs(this.angle - this.targetAngle + this.angularVelocity) <= Math.abs(this.angularVelocity)) { //do better soon
-			this.angle = this.targetAngle;
-			this.angularVelocity = 0;
-		}
-		else {
-			this.angle += this.angularVelocity;
-		}
+		if (typeof reducedGameMotion === 'function' && reducedGameMotion()) this.shakes = [];
+		else for (var i = 0; i < this.shakes.length; i++) this.shake(this.shakes[i]);
+		this.angle = easeRotationAngle(this.angle, this.targetAngle);
  
 		drawPolygon(this.x + gdx, this.y + gdy + this.dy, this.sides, this.sideLength, this.angle,arrayToColor(this.fillColor) , 0, 'rgba(0,0,0,0)');
+		if (typeof drawJewelCore === 'function') drawJewelCore(this.x + gdx, this.y + gdy + this.dy, this.sideLength, this.angle);
 	};
 }
 

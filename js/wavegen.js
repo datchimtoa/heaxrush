@@ -1,17 +1,8 @@
 function blockDestroyed() {
-	if (waveone.nextGen > 1350) {
-		waveone.nextGen -= 30 * settings.creationSpeedModifier;
-	} else if (waveone.nextGen > 600) {
-		waveone.nextGen -= 8 * settings.creationSpeedModifier;
-	} else {
-		waveone.nextGen = 600;
-	}
-
-	if (waveone.difficulty < 35) {
-		waveone.difficulty += 0.085 * settings.speedModifier;
-	} else {
-		waveone.difficulty = 35;
-	}
+	waveone.clearedBlocks++;
+	var progress = Math.max(0, waveone.clearedBlocks - 60);
+	waveone.nextGen = Math.max(650, 2700 - progress * 14);
+	waveone.difficulty = Math.min(35, 1 + progress / 12);
 }
 
 function waveGen(hex) {
@@ -23,16 +14,11 @@ function waveGen(hex) {
 	this.ct = 0;
 	this.hex = hex;
 	this.difficulty = 1;
+	this.clearedBlocks = 0;
 	this.dt = 0;
 	this.update = function() {
+		this.dt = 16.666667 * MainHex.ct;
 		this.currentFunction();
-		this.dt = (settings.platform == 'mobile' ? 14 : 16.6667) * MainHex.ct;
-		this.computeDifficulty();
-		if ((this.dt - this.lastGen) * settings.creationSpeedModifier > this.nextGen) {
-			if (this.nextGen > 600) {
-				this.nextGen -= 11 * ((this.nextGen / 1300)) * settings.creationSpeedModifier;
-			}
-		}
 	};
 
 	this.randomGeneration = function() {
@@ -61,21 +47,6 @@ function waveGen(hex) {
 					this.currentFunction = this.halfCircleGeneration;
 				}
 			}
-		}
-	};
-
-	this.computeDifficulty = function() {
-		if (this.difficulty < 35) {
-			var increment;
-			if (this.difficulty < 8) {
-				 increment = (this.dt - this.last) / (5166667) * settings.speedModifier;
-			} else if (this.difficulty < 15) {
-				increment = (this.dt - this.last) / (72333333) * settings.speedModifier;
-			} else {
-				increment = (this.dt - this.last) / (90000000) * settings.speedModifier;
-			}
-
-			this.difficulty += increment * (1/2);
 		}
 	};
 
@@ -131,7 +102,7 @@ function waveGen(hex) {
 	this.crosswiseGeneration = function() {
 		if (this.dt - this.lastGen > this.nextGen) {
 			var ri = randInt(0, colors.length);
-			var i = randInt(0, colors.length);
+			var i = randInt(0, MainHex.sides);
 			addNewBlock(i, colors[ri], 0.6 + (this.difficulty / 15) * 3);
 			addNewBlock((i + 3) % MainHex.sides, colors[ri], 0.6 + (this.difficulty / 15) * 3);
 			this.ct += 1.5;
@@ -156,7 +127,7 @@ function waveGen(hex) {
 
 	this.doubleGeneration = function() {
 		if (this.dt - this.lastGen > this.nextGen) {
-			var i = randInt(0, colors.length);
+			var i = randInt(0, MainHex.sides);
 			addNewBlock(i, colors[randInt(0, colors.length)], 1.5 + (this.difficulty / 15) * 3);
 			addNewBlock((i + 1) % MainHex.sides, colors[randInt(0, colors.length)], 1.5 + (this.difficulty / 15) * 3);
 			this.ct += 2;

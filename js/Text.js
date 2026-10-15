@@ -9,7 +9,8 @@ function Text(x,y,text,font,color,incrementFunction){
 	this.draw = function(){
 		if (this.alive>0) {
 			ctx.globalAlpha = this.opacity;
-			renderText((this.x + gdx), (this.y + gdy),50,this.color,this.text);
+			var pointsLabel = this.text.indexOf('+') === 0;
+			renderText((this.x + gdx), (this.y + gdy - (pointsLabel ? settings.hexWidth * 1.4 : 0)), pointsLabel ? 36 : 50, this.color, this.text);
 			ctx.globalAlpha =1;
 			incrementFunction(this);
 			return true;
@@ -23,5 +24,5 @@ function Text(x,y,text,font,color,incrementFunction){
 function fadeUpAndOut(text){
 	text.opacity -= MainHex.dt * Math.pow(Math.pow((1-text.opacity), 1/3)+1,3)/100;
 	text.alive = text.opacity;
-	text.y -= 3 * MainHex.dt;
+	if (typeof reducedGameMotion !== 'function' || !reducedGameMotion()) text.y -= 3 * MainHex.dt;
 }

@@ -3,3 +3,9 @@
 *~
 *.swp
 *.swo
+.test-artifacts/
+.preview/
+node_modules/
+.env
+.env.*
+!.env.example

@@ -1,151 +1,185 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang="en">
 	<head>
-		<title>Hextris</title>
-		<meta name="apple-itunes-app" content="app-id=903769553"/>
-		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, minimal-ui"/>
-		<meta property="og:url" content="http://hextris.github.io/hextris/"/>
-		<meta property="og:site_name" content="Hextris"/>
-		<meta property="og:title" content="Hextris"/>
-		<meta property="og:description" content="An addictive puzzle game inspired by Tetris."/>
-		<meta property="og:type" content="website"/>
-		<meta property="og:author" content="https://www.facebook.com/hextris"/>
-		<meta property="og:image" content="http://hextris.github.io/hextris/images/facebook-opengraph.png"/>
-		<meta property="og:image:width" content="1200"/>
-		<meta property="og:image:height" content="630"/>
-		<meta property="twitter:card" content="summary"/>
-		<meta property="twitter:site" content="@hextris"/>
-		<meta property="twitter:site:id" content="2742209678"/>
-		<meta property="twitter:creator" content="@hextris"/>
-		<meta property="twitter:creator:id" content="2742209678"/>
-		<meta property="twitter:domain" content="http://hextris.github.io"/>
-		<meta property="twitter:title" content="Hextris"/>
-		<meta property="twitter:description" content="An addictive puzzle game inspired by Tetris."/>
-		<meta property="twitter:image:src" content="http://hextris.github.io/hextris/images/twitter-opengraph.png"/>
-		<meta property="twitter:image:width" content="512"/>
-		<meta property="twitter:image:height" content="512"/>
-		<meta property="twitter:app:id:iphone" content="id903769553">
-		<meta property="twitter:app:id:ipad" content="id903769553">
-		<meta property="twitter:app:id:googleplay" content="com.hextris.hextris">
-		<meta property="twitter:app:country" content="us">
-		<meta property="twitter:app:url:iphone" content="itunes.apple.com/us/app/id903769553?mt=8">
-		<meta property="twitter:app:url:ipad" content="itunes.apple.com/us/app/id903769553?mt=8">
-		<meta property="twitter:app:url:googleplay" content="https://play.google.com/store/apps/details?id=com.hextris.hextris">
-		<link rel="icon" type="image/png" href="favicon.ico">
-		<link href='http://fonts.googleapis.com/css?family=Exo+2' rel='stylesheet' type='text/css'>
-		<link rel="stylesheet" href="style/fa/css/font-awesome.min.css">
-		<link rel="stylesheet" type="text/css" href="style/style.css">
-		<script type='text/javascript' src="vendor/hammer.min.js"></script>
-		<script type='text/javascript' src="vendor/js.cookie.js"></script>
-		<script type='text/javascript' src="vendor/jsonfn.min.js"></script>
-		<script type='text/javascript' src="vendor/keypress.min.js"></script>
-		<script type='text/javascript' src="vendor/jquery.js"></script>
-		<script type='text/javascript' src="js/save-state.js"></script>
-		<script type='text/javascript' src="js/view.js"></script>
-		<script type='text/javascript' src="js/wavegen.js"></script>
-		<script type='text/javascript' src="js/math.js"></script>
-		<script type='text/javascript' src="js/Block.js"></script>
-		<script type='text/javascript' src="js/Hex.js"></script>
-		<script type='text/javascript' src="js/Text.js"></script>
-		<script type='text/javascript' src="js/comboTimer.js"></script>
-		<script type='text/javascript' src="js/checking.js"></script>
-		<script type='text/javascript' src='js/update.js'></script>
-		<script type='text/javascript' src='js/render.js'></script>
-		<script type='text/javascript' src="js/input.js"></script>
-		<script type='text/javascript' src="js/main.js"></script>
-		<script type='text/javascript' src="js/initialization.js"></script>
-		<script src="vendor/sweet-alert.min.js"></script>
-		<link rel="stylesheet" href="style/rrssb.css"/>
+		<meta charset="utf-8">
+		<title>Hexa Rush — Rotate. Match. Earn.</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+		<meta name="theme-color" content="#301441">
+		<meta name="description" content="Rotate the hexagon. Match five colors. Chase your next best score in Hexa Rush.">
+		<meta property="og:title" content="Hexa Rush">
+		<meta property="og:description" content="Rotate. Match. Earn. A fast-paced hexagon puzzle game.">
+		<link rel="icon" href="favicon.ico">
+		<link rel="stylesheet" href="style/style.css">
+		<link rel="stylesheet" href="style/home.css">
+		<link rel="stylesheet" href="style/polish.css">
+		<script defer src="vendor/jquery.js"></script>
+		<script defer src="js/scoring.js"></script>
+		<script defer src="js/session-rules.js"></script>
+		<script defer src="js/save-state.js"></script>
+		<script defer src="js/identity.js"></script>
+		<script defer src="js/player.js"></script>
+		<script defer src="js/coins.js"></script>
+		<script defer src="js/leaderboards.js"></script>
+		<script defer src="js/achievements.js"></script>
+		<script defer src="js/daily.js"></script>
+		<script defer src="js/referrals.js"></script>
+		<script defer src="js/feedback.js"></script>
+		<script defer src="js/music.js"></script>
+		<script defer src="js/effects.js"></script>
+		<script defer src="js/sessions.js"></script>
+		<script defer src="js/view.js"></script>
+		<script defer src="js/wavegen.js"></script>
+		<script defer src="js/math.js"></script>
+		<script defer src="js/Block.js"></script>
+		<script defer src="js/Hex.js"></script>
+		<script defer src="js/Text.js"></script>
+		<script defer src="js/comboTimer.js"></script>
+		<script defer src="js/checking.js"></script>
+		<script defer src="js/update.js"></script>
+		<script defer src="js/render.js"></script>
+		<script defer src="js/input.js"></script>
+		<script defer src="js/auth.js"></script>
+		<script defer src="js/main.js"></script>
+		<script defer src="js/initialization.js"></script>
 	</head>
-	<body>
-		<canvas id="canvas"></canvas>
-		<div id="overlay" class="faded overlay"></div>
-		<div id='startBtn' ></div>
-		<div id="helpScreen" class='unselectable'>
-			<div id='inst_main_body'></div>
+	<body data-screen="home">
+		<canvas id="canvas" aria-label="Hexa Rush game board"></canvas>
+		<div class="scoreboard" aria-label="Scores">
+			<div><span class="stat-label">SCORE</span><strong id="liveScore">0</strong></div>
+			<div class="score-divider"></div>
+			<div><span class="stat-label">PERSONAL BEST</span><strong id="currentHighScore">0</strong></div>
 		</div>
-		<img id="openSideBar" class='helpText' src="./images/btn_help.svg"/>
-		<div class="faded overlay"></div>
-		<img id="pauseBtn" src="./images/btn_pause.svg"/>
-		<img id='restartBtn' src="./images/btn_restart.svg"/>
-		<div id='HIGHSCORE'>HIGH SCORE</div>
-		<script> (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){ (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o), m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m) })(window,document,'script','//www.google-analytics.com/analytics.js','ga'); ga('create', 'UA-51272720-2', 'auto'); ga('send', 'pageview');
-		</script>
-		<div id='highScoreInGameText'>
-			<div id='highScoreInGameTextHeader'>HIGH SCORE</div><div id='currentHighScore'>10292</div>
-		</div>
-		<div id="gameoverscreen">
-			<div id='container'>
-				<div id='gameOverBox' class='GOTitle'>GAME OVER</div>
-				<div id='cScore'>1843</div>
-				<div id='highScoresTitle' class='GOTitle'>HIGH SCORES</div>
-				<div class='score'><span class='scoreNum'>1.</span> <div id="1place" style="display:inline;">0</div></div>
-				<div class='score'><span class='scoreNum'>2.</span> <div id="2place" style="display:inline;">0</div></div>
-				<div class='score'><span class='scoreNum'>3.</span> <div id="3place" style="display:inline;">0</div></div>
-			</div>
-			<div id='bottomContainer'>
-				<img id='restart' src='./images/btn_restart.svg' height='57px'>
-				<div id='socialShare'>
-					<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-					<svg width="224.6377px" height="57px"  viewBox="0 0 255 65" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-						<title>Share button</title>
-						<defs>
-						</defs>
-						<g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
-							<g id="Game-over-" sketch:type="MSArtboardGroup" transform="translate(-95.000000, -565.000000)">
-								<g id="Share-button" sketch:type="MSLayerGroup" transform="translate(95.000000, 565.000000)">
-								<a style="cursor:pointer;"class="popup" onclick="window.open('https://twitter.com/intent/tweet?text=Can you beat my score of '+ score +' points at&button_hashtag=hextris ? http://hextris.github.io/hextris @hextris','name','width=600,height=400')" ><polygon  id="Score-hex-2" fill="#3498DB" sketch:type="MSShapeGroup" transform="translate(127.661316, 32.500000) rotate(-90.000000) translate(-127.661316, -32.500000) " points="127.661316 -94.814636 160.137269 -76.064636 160.137269 141.064636 127.661317 159.814636 95.185364 141.064636 95.1853635 -76.064636 "></polygon></a>
-									<text style="cursor:pointer;"class="popup" onclick="window.open('https://twitter.com/intent/tweet?text=Can you beat my score of '+ score +' points at&button_hashtag=hextris ? http://hextris.github.io/hextris @hextris','name','width=600,height=400')" id="SHARE-MY-SCORE!" sketch:type="MSTextLayer" font-family="Exo" font-size="16" font-weight="420" fill="#FFFFFF">
-										<tspan x="67" y="39">SHARE MY SCORE!</tspan>
-									</text>
-								</g>
-							</g>
-						</g>
-					</svg>
+		<button id="pauseBtn" class="icon-button pause-button" aria-label="Pause game" hidden>Ⅱ</button>
+		<main id="startScreen" class="start-screen">
+			<section data-home-panel="home" class="title-screen" aria-label="Title screen">
+				<div class="title-copy"><h1>HEXA<span>RUSH</span></h1><p class="title-tagline">Rotate. Match. Earn.</p></div>
+				<div class="title-actions"><p class="title-record">BEST <strong id="homeBest">0</strong></p><button id="startBtn" class="primary-button arcade-play"><span aria-hidden="true">▶</span> PLAY</button></div>
+				<nav class="title-menu" aria-label="Game menu"><button id="openLeaderboards" data-home-tab="leaderboards">Leaderboards</button></nav>
+				<p id="runNotice" class="run-notice" role="status" hidden></p><button id="practiceBtn" class="practice-choice" hidden>Play on this device instead</button>
+			</section>
+			<section data-home-panel="leaderboards" class="game-menu-screen" aria-labelledby="leaderboardsTitle" hidden>
+				<div class="menu-sheet leaderboard-sheet">
+					<div class="leaderboard-toolbar"><button data-home-tab="home" class="menu-back">← Home</button><button id="leaderboardRefresh" class="leaderboard-refresh" aria-label="Refresh standings" title="Refresh standings" hidden>↻</button></div>
+					<div class="leaderboard-heading"><span class="feature-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path class="icon-light" d="M5 4H2v3a5 5 0 0 0 6 5 M19 4h3v3a5 5 0 0 1-6 5"/><path d="M6 2h12v6a6 6 0 0 1-12 0Z M10 14h4v5h-4Z M6 19h12v3H6Z"/></svg></span><h1 id="leaderboardsTitle">Leaderboards</h1></div>
+					<div class="leaderboard-periods" role="group" aria-label="Leaderboard period"><button data-leaderboard-period="daily" aria-pressed="true">Daily</button><button data-leaderboard-period="weekly" aria-pressed="false">Weekly</button></div>
+					<p id="leaderboardMetric" class="leaderboard-metric">Best run · Top 50</p>
+					<div id="leaderboardOwn" class="leaderboard-own" aria-label="Your standing" hidden></div>
+					<p id="leaderboardStatus" class="leaderboard-status" role="status">Open in Telegram to join the rankings.</p>
+					<div id="leaderboardColumns" class="leaderboard-columns" aria-hidden="true" hidden><span>Rank</span><span>Player</span><span>Points</span></div>
+					<ol id="leaderboardEntries" class="leaderboard-entries" aria-label="Player rankings"></ol>
 				</div>
-				<div id='buttonCont'>
-					<ul class="rrssb-buttons">
-						<li class="rrssb-facebook">
-							<a href='http://www.facebook.com/sharer.php?s=100
-								&p[url]=hextris.io' class="popup">
-								<span class="rrssb-icon">
-									<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid" width="29" height="29" viewBox="0 0 29 29">
-										<path d="M26.4 0H2.6C1.714 0 0 1.715 0 2.6v23.8c0 .884 1.715 2.6 2.6 2.6h12.393V17.988h-3.996v-3.98h3.997v-3.062c0-3.746 2.835-5.97 6.177-5.97 1.6 0 2.444.173 2.845.226v3.792H21.18c-1.817 0-2.156.9-2.156 2.168v2.847h5.045l-.66 3.978h-4.386V29H26.4c.884 0 2.6-1.716 2.6-2.6V2.6c0-.885-1.716-2.6-2.6-2.6z"
-										class="cls-2" fill-rule="evenodd"/>
-									</svg>
-								</span>
-								<span class="rrssb-text">facebook</span>
-							</a>
-						</li>
-						<li class="rrssb-twitter">
-							<a href="http://twitter.com/home?status=Play Hextris! - http://hextris.github.io/ #hextris"
-							class="popup">
-								<span class="rrssb-icon">
-									<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
-										<path d="M24.253 8.756C24.69 17.08 18.297 24.182 9.97 24.62c-3.122.162-6.22-.646-8.86-2.32 2.702.18 5.375-.648 7.507-2.32-2.072-.248-3.818-1.662-4.49-3.64.802.13 1.62.077 2.4-.154-2.482-.466-4.312-2.586-4.412-5.11.688.276 1.426.408 2.168.387-2.135-1.65-2.73-4.62-1.394-6.965C5.574 7.816 9.54 9.84 13.802 10.07c-.842-2.738.694-5.64 3.434-6.48 2.018-.624 4.212.043 5.546 1.682 1.186-.213 2.318-.662 3.33-1.317-.386 1.256-1.248 2.312-2.4 2.942 1.048-.106 2.07-.394 3.02-.85-.458 1.182-1.343 2.15-2.48 2.71z"
-										/>
-									</svg>
-								</span>
-								<span class="rrssb-text">twitter</span>
-							</a>
-						</li>
-				</ul>
-					<div id='badges'>
-						<a href="https://play.google.com/store/apps/details?id=com.hextris.hextris" ><img id='androidBadge' src='images/android.png'/></a>
-						<a href ="https://itunes.apple.com/us/app/hextris/id903769553?mt=8"><img id='iOSBadge'  src='images/appstore.svg'/></a>
+			</section>
+			<section data-home-panel="profile" class="game-menu-screen" aria-labelledby="profileTitle" hidden>
+				<div class="menu-sheet"><h1 id="profileTitle">Profile</h1><div class="profile-identity"><span id="profileAvatar" class="profile-avatar" aria-hidden="true">H</span><div><h2 id="profileName">Guest player</h2><p id="profileAccount">Device-only practice</p></div></div><div class="record-summary profile-summary"><div><span id="profileBestLabel" class="stat-label">PRACTICE BEST</span><strong id="profileBest">0</strong></div><div><span id="profileGamesLabel" class="stat-label">DEVICE PRACTICE RUNS</span><strong id="profileGames">0</strong></div></div>
+					<button id="openSettings" data-home-tab="settings" class="menu-link"><span class="menu-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m10 2 4 0 1 3 3-1 2 3-2 3 3 2-1 4-3 0-1 3-4 2-2-3-3 0-2-4 2-2-1-3 3-2Z"/><circle class="icon-light" cx="12" cy="12" r="4"/></svg></span>Options <span>→</span></button><button data-home-tab="activity" class="menu-link"><span class="menu-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path class="icon-line" d="m6 15 4-4 3 3 5-7 M14 7h4v4"/></svg></span>My practice records <span>→</span></button><button data-home-tab="coins" class="menu-link"><span class="menu-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle class="icon-light" cx="12" cy="12" r="7"/><path class="icon-line" d="m15 8-3-1-4 3v4l4 3 3-1"/></svg></span>Account Coins <span>→</span></button>
+					<details id="profileConnection" class="menu-details"><summary>Connection</summary><p id="playerName">Guest player</p><strong id="connectionTitle">Playing on this device</strong><p id="connectionDetail">Open from Telegram to connect. Browser runs are local practice.</p><button id="retryLogin" class="secondary-button" hidden>Retry Telegram login</button></details>
+				</div>
+			</section>
+			<section data-home-panel="tasks" class="game-menu-screen" aria-labelledby="tasksTitle" hidden>
+				<div class="menu-sheet achievement-sheet">
+					<button data-home-tab="home" class="menu-back">← Home</button>
+					<div class="leaderboard-heading"><span class="feature-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="18" rx="3"/><path class="icon-light" d="M8 2h8v5H8Z"/><path class="icon-line" d="m8 13 3 3 5-6 M8 19h8"/></svg></span><h1 id="tasksTitle">Tasks</h1></div>
+					<div class="leaderboard-periods tasks-sections" role="group" aria-label="Task sections"><button data-tasks-section="daily" aria-pressed="true" aria-controls="dailyPanel">Daily</button><button data-tasks-section="achievements" aria-pressed="false" aria-controls="achievementPanel">Achievements</button></div>
+					<div id="dailyPanel">
+						<div class="leaderboard-toolbar tasks-toolbar"><h2>Daily quests</h2><button id="dailyRefresh" class="leaderboard-refresh" aria-label="Refresh daily progress" title="Refresh daily progress" hidden>↻</button></div>
+						<p id="dailyDay" class="achievement-intro"></p>
+						<p class="daily-reward-notice">Play for progress. Quest and streak rewards are not active.</p>
+						<p id="dailyStatus" class="leaderboard-status" role="status">Open in Telegram to see daily progress.</p>
+						<ul id="dailyEntries" class="achievement-list" aria-label="Daily quests"></ul>
+						<div id="dailyStreak" class="achievement-row streak-panel" hidden><h2>Login streak</h2><strong id="dailyStreakCount"></strong><p id="dailyStreakDetail"></p></div>
+						<p class="achievement-note">Finish games while connected to Telegram to grow your progress. New quests arrive at 00:00 UTC.</p>
+						<p class="achievement-note">Come back through the bot each day to keep your streak going. Miss a day? Start fresh on your next visit.</p>
+					</div>
+					<div id="achievementPanel" hidden>
+					<div class="leaderboard-toolbar tasks-toolbar"><h2>Achievements</h2><button id="achievementRefresh" class="leaderboard-refresh" aria-label="Refresh achievement progress" title="Refresh progress" hidden>↻</button></div>
+					<p class="achievement-intro">Find your rhythm. Chase your next milestone.</p>
+					<p id="achievementStatus" class="leaderboard-status" role="status">Open in Telegram to see your progress.</p>
+					<ul id="achievementEntries" class="achievement-list" aria-label="Achievements"></ul>
+					<p class="achievement-note">Chase milestones while connected to Telegram. Coin rewards are not active.</p>
 					</div>
 				</div>
-			</div>
+			</section>
+			<section data-home-panel="referrals" class="game-menu-screen" aria-labelledby="referralsTitle" hidden>
+				<div class="menu-sheet achievement-sheet">
+					<div class="leaderboard-toolbar"><button data-home-tab="home" class="menu-back">← Home</button><button id="referralRefresh" class="leaderboard-refresh" aria-label="Refresh referral progress" hidden>↻</button></div>
+					<div class="leaderboard-heading"><span class="feature-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path class="icon-light" d="M15 14a5 5 0 0 1 7 5v2h-7Z"/><circle class="icon-light" cx="17" cy="8" r="3"/><path d="M2 21v-3a6 6 0 0 1 12 0v3Z"/><circle cx="8" cy="7" r="4"/></svg></span><h1 id="referralsTitle">Referrals</h1></div>
+					<p class="achievement-intro">Bring a friend. Find your rhythm together.</p>
+					<p class="daily-reward-notice">Play together for fun. Referral rewards are not active.</p>
+					<p id="referralStatus" class="leaderboard-status" role="status">Open in Telegram to invite friends.</p>
+					<button id="referralCreate" class="secondary-button" hidden>Create my invite</button>
+					<div id="referralInvite" class="referral-invite" hidden><label for="referralLink">Your invite link</label><textarea id="referralLink" rows="4" readonly spellcheck="false" autocomplete="off" wrap="soft"></textarea><div class="referral-actions"><button id="referralCopy" class="secondary-button">Copy invite</button><button id="referralShare" class="secondary-button">Share</button></div></div>
+					<div id="referralSummary" class="record-summary referral-summary" hidden><div><span class="stat-label">FRIENDS JOINED</span><strong id="referralInvited"></strong></div><div><span class="stat-label">PLAYED 3 GAMES</span><strong id="referralReached"></strong></div></div>
+					<p class="achievement-note">Invite friends who are new to Hexa Rush. See how many join and finish their first 3 games.</p>
+				</div>
+			</section>
+			<section data-home-panel="wallet" class="game-menu-screen" aria-labelledby="walletTitle" hidden>
+				<div class="menu-sheet"><h1 id="walletTitle">Wallet</h1><div class="feature-message"><span class="feature-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path class="icon-light" d="M4 4h14v5H3V5Z"/><rect x="3" y="7" width="18" height="14" rx="3"/><path class="icon-light" d="M21 12h-7v5h7Z"/><path class="icon-line" d="M17 14.5h1"/></svg></span><h2>Wallet isn't available yet</h2><p>No wallet connection, transfers or withdrawals are available. Coins are in-game points, not money.</p></div><button data-home-tab="coins" class="menu-link">View account Coins <span>→</span></button></div>
+			</section>
+			<section data-home-panel="activity" class="game-menu-screen" aria-labelledby="activityTitle" hidden>
+				<div class="menu-sheet"><button data-home-tab="profile" class="menu-back">← Profile</button><h1 id="activityTitle">My records</h1><div class="record-summary"><div><span class="stat-label">RUNS</span><strong id="homeRuns">0</strong></div><div><span class="stat-label">BEST COMBO</span><strong id="homeCombo">—</strong></div><div><span class="stat-label">CLEARED</span><strong id="totalCleared">0</strong></div><div><span class="stat-label">LONGEST RUN</span><strong id="longestRun">0:00</strong></div></div><h2>Recent runs</h2><div id="activityEmpty" class="empty-state"><p>No runs yet. Your first record is one game away.</p><button id="activityPlay" class="primary-button">PLAY <span>▶</span></button></div><ol id="runHistory" class="run-history" aria-label="Recent practice runs"></ol><p class="local-disclosure">Your last 20 finished practice games.<br>Practice games stay on this device.</p></div>
+			</section>
+			<section data-home-panel="settings" class="game-menu-screen" aria-labelledby="settingsTitle" hidden>
+				<div class="menu-sheet"><button data-home-tab="profile" class="menu-back">← Profile</button><h1 id="settingsTitle">Options</h1>
+					<button id="openCoins" data-home-tab="coins" class="menu-link">Coins <span>→</span></button><div class="setting-row"><div><strong>Sound effects</strong><p>Match and rotation sounds</p></div><button id="soundToggle" data-preference="sound" class="switch-button" role="switch" aria-checked="false" aria-label="Sound effects"><span></span></button></div>
+					<div class="setting-row"><strong>Music</strong><button id="musicToggle" data-preference="music" class="switch-button" role="switch" aria-checked="false" aria-label="Music"><span></span></button></div>
+					<div class="setting-row music-setting"><div><label for="musicStyle">Your soundtrack</label><p>Original loops · Plays during a run</p></div><select id="musicStyle"><option value="off">Music off</option><option value="chill">Chill · mellow keys</option><option value="rock">Rock · power pulse</option></select></div>
+					<div class="setting-row volume-setting"><label for="musicVolume">Music volume <output id="musicVolumeLabel" for="musicVolume">35%</output></label><input id="musicVolume" type="range" min="0" max="100" step="5" value="35"></div>
+					<div class="setting-row"><div><strong>Vibration</strong><p>Rotation and match feedback</p></div><button id="hapticsToggle" data-preference="haptics" class="switch-button" role="switch" aria-checked="false" aria-label="Vibration"><span></span></button></div><button id="settingsHelp" class="menu-link">Controls <span>→</span></button><details id="aboutGame" class="menu-details"><summary>About</summary><p>Hexa Rush</p><p>Rotate. Match. Chase your next best! Practice records and settings stay on this device. Connect through Telegram to save account scores and join the rankings. Sound, music and vibration start off; pick your soundtrack in Options. Coin rewards are not active.</p><p>Daily rankings use your best game; Weekly adds your points. Days reset at 00:00 UTC and weeks on Monday. Ties share a rank. Your public Telegram username appears on the board, or a player nickname if you don’t have one. Practice stays off the board. Play for the challenge — there are no leaderboard prizes.</p><a href="credits.html" target="_blank" rel="noopener noreferrer">Credits &amp; license · GPLv3 ↗</a></details></div>
+			</section>
+			<section data-home-panel="coins" class="game-menu-screen" aria-labelledby="coinsTitle" hidden>
+				<div class="menu-sheet">
+					<button id="coinBack" data-home-tab="profile" class="menu-back">← Profile</button><h1 id="coinsTitle">Coins</h1>
+					<div id="coinBalanceRow" class="setting-row" hidden><strong>Account balance</strong><strong id="coinBalance">—</strong></div>
+					<div id="coinHeldRow" class="setting-row" hidden><strong>Reserved</strong><strong id="coinsHeld">—</strong></div>
+					<div id="coinDailyRow" hidden><div class="setting-row"><strong>Earned today <small id="coinDayLabel"></small></strong><strong id="coinEarnedToday">—</strong></div><div class="setting-row"><strong>Game limit remaining</strong><strong id="coinGameplayRemaining">—</strong></div><div class="setting-row"><strong>Daily limit remaining</strong><strong id="coinTotalRemaining">—</strong></div></div>
+					<p id="coinStatus" class="local-disclosure" role="status">Open from your Telegram bot to view account Coins.</p>
+					<p class="local-disclosure">Coins are in-game points, not money. No purchases, transfers or withdrawals are available.</p>
+					<button id="coinRefresh" class="secondary-button" hidden>Refresh</button>
+					<h2>Transactions</h2><ol id="coinHistory" class="run-history"></ol>
+					<button id="coinMore" class="secondary-button" hidden>Older transactions</button>
+				</div>
+			</section>
+			<p id="storageNotice" class="storage-notice" role="status" hidden>Storage unavailable · Records last only for this visit.</p>
+		</main>
+		<nav id="appNavigation" class="app-navigation" aria-label="Main navigation">
+			<button data-home-tab="home" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10 12 3l9 7v11H3Z"/><path class="icon-light" d="M9 21v-8h6v8"/><path class="icon-line" d="m2 10 10-8 10 8"/></svg><span>Home</span></button>
+			<button data-home-tab="tasks"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="18" rx="3"/><path class="icon-light" d="M8 2h8v5H8Z"/><path class="icon-line" d="m8 13 3 3 5-6 M8 19h8"/></svg><span>Tasks</span></button>
+			<button data-home-tab="referrals"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="icon-light" d="M15 14a5 5 0 0 1 7 5v2h-7Z"/><circle class="icon-light" cx="17" cy="8" r="3"/><path d="M2 21v-3a6 6 0 0 1 12 0v3Z"/><circle cx="8" cy="7" r="4"/></svg><span>Referrals</span></button>
+			<button data-home-tab="wallet"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="icon-light" d="M4 4h14v5H3V5Z"/><rect x="3" y="7" width="18" height="14" rx="3"/><path class="icon-light" d="M21 12h-7v5h7Z"/><path class="icon-line" d="M17 14.5h1"/></svg><span>Wallet</span></button>
+			<button id="openProfile" data-home-tab="profile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path class="icon-line" d="M8 9h.01 M16 9h.01 M7 14c2 5 8 5 10 0"/><path class="icon-light" d="M5 12h2 M17 12h2"/></svg><span>Profile</span></button>
+		</nav>
+		<div id="playControls" class="play-controls" hidden>
+			<button id="rotateLeft" class="rotate-button" aria-label="Rotate left">↶ <span>LEFT</span></button>
+			<div class="combo-status"><strong id="comboLabel"></strong><span id="comboDetail"></span></div>
+			<button id="rotateRight" class="rotate-button" aria-label="Rotate right"><span>RIGHT</span> ↷</button>
 		</div>
-			<script type="text/javascript">
-				(function addRussianSocialShare(){
-					var lang=navigator.language || navigator.userLanguage;
-					if (lang.substr(0, 2) == 'ru') {
-						$('.rrssb-facebook').remove();
-						var n=$.parseHTML('<li class="rrssb-vk"><a href="http://vk.com/share.php?url=http://kurtnoble.com/labs/rrssb/index.html" class="popup"><span class="rrssb-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="70 70 378.7 378.7"><path d="M254.998 363.106h21.217s6.408-.706 9.684-4.23c3.01-3.24 2.914-9.32 2.914-9.32s-.415-28.47 12.796-32.663c13.03-4.133 29.755 27.515 47.482 39.685 13.407 9.206 23.594 7.19 23.594 7.19l47.407-.662s24.797-1.53 13.038-21.027c-.96-1.594-6.85-14.424-35.247-40.784-29.728-27.59-25.743-23.126 10.063-70.85 21.807-29.063 30.523-46.806 27.8-54.405-2.596-7.24-18.636-5.326-18.636-5.326l-53.375.33s-3.96-.54-6.892 1.216c-2.87 1.716-4.71 5.726-4.71 5.726s-8.452 22.49-19.714 41.618c-23.77 40.357-33.274 42.494-37.16 39.984-9.037-5.842-6.78-23.462-6.78-35.983 0-39.112 5.934-55.42-11.55-59.64-5.802-1.4-10.076-2.327-24.915-2.48-19.046-.192-35.162.06-44.29 4.53-6.072 2.975-10.757 9.6-7.902 9.98 3.528.47 11.516 2.158 15.75 7.92 5.472 7.444 5.28 24.154 5.28 24.154s3.145 46.04-7.34 51.758c-7.193 3.922-17.063-4.085-38.253-40.7-10.855-18.755-19.054-39.49-19.054-39.49s-1.578-3.873-4.398-5.947c-3.42-2.51-8.2-3.307-8.2-3.307l-50.722.33s-7.612.213-10.41 3.525c-2.488 2.947-.198 9.036-.198 9.036s39.707 92.902 84.672 139.72c41.234 42.93 88.048 40.112 88.048 40.112"/></svg></span><span class="rrssb-text">vk.com</span></a></li>');
-						$('.rrssb-buttons').prepend(n);
-					}})()
-			</script>
-		<script type="text/javascript" src='vendor/rrssb.min.js'></script>
+		<div id="tutorialTip" class="tutorial-tip" role="status" hidden><span id="tutorialMessage"></span><button id="skipTutorial" aria-label="Dismiss tutorial">Got it</button></div>
+		<div id="clearCallout" class="clear-callout" aria-hidden="true" hidden></div>
+		<section id="gameoverscreen" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="gameOverBox" hidden>
+			<div class="panel result-panel">
+				<span class="eyebrow" id="resultEyebrow">RUN COMPLETE</span><h2 id="gameOverBox">GAME OVER</h2>
+				<span class="stat-label">YOUR SCORE</span><strong id="cScore" class="result-score">0</strong>
+				<div class="result-stats"><div><span class="stat-label">PERSONAL BEST</span><strong id="bestScore">0</strong></div><div><span class="stat-label">BEST COMBO</span><strong id="bestCombo">x1</strong></div><div><span class="stat-label">BLOCKS CLEARED</span><strong id="resultCleared">0</strong></div><div><span class="stat-label">TIME PLAYED</span><strong id="resultDuration">0:00</strong></div></div>
+				<p id="resultInsight" class="result-insight"></p>
+				<p id="resultCoins" class="result-coins" hidden></p>
+				<p id="newBest" class="new-best" hidden>✦ NEW PERSONAL BEST</p>
+				<button id="restart" class="primary-button">PLAY AGAIN <span>↗</span></button>
+				<button id="homeBtn" class="text-button">Title screen</button>
+				<p id="resultSaveNote" class="practice-note">Saved on this device</p>
+				<button id="retryResult" class="text-button" hidden>Retry saving</button>
+			</div>
+		</section>
+		<section id="pauseScreen" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="pauseTitle" hidden>
+			<div class="panel"><h2 id="pauseTitle">PAUSED</h2><div class="pause-options"><div class="setting-row"><strong>Music</strong><button id="pauseMusicToggle" data-preference="music" class="switch-button" role="switch" aria-checked="false" aria-label="Music"><span></span></button></div><div class="setting-row"><strong>Sound effects</strong><button id="pauseSoundToggle" data-preference="sound" class="switch-button" role="switch" aria-checked="false" aria-label="Sound effects"><span></span></button></div><div class="setting-row"><strong>Vibration</strong><button id="pauseHapticsToggle" data-preference="haptics" class="switch-button" role="switch" aria-checked="false" aria-label="Vibration"><span></span></button></div></div><button id="resumeBtn" class="primary-button">RESUME <span>▶</span></button><button id="restartBtn" class="text-button">Restart run</button><button id="pauseHelp" class="text-button">Controls</button><button id="pauseHomeBtn" class="text-button">Title screen</button><p id="gameMode" class="practice-note" role="status">Saved on this device</p></div>
+		</section>
+		<section id="helpScreen" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="instructions_head" hidden>
+			<div class="panel help-panel">
+				<span class="eyebrow">THE SHORT VERSION</span><h2 id="instructions_head">Get into the rhythm.</h2>
+				<ol><li><strong>Rotate</strong><p>Tap either side of the board or use ← → / A D to rotate the hexagon.</p></li><li><strong>Match</strong><p>Connect 3+ blocks of the same color. Matches clear across neighboring sides, too.</p></li><li><strong>Keep it going</strong><p>Clear again within 5 seconds to grow your chain. Its multiplier tops out at 3×. Don’t overflow the outer hexagon.</p></li></ol>
+				<p class="scoring-note">3 blocks = 10 · 4 = 18 · 5 = 30<br>Each block above 5 adds 12 base points.<br>Desktop: hold ↓ / S to rush · Space / P to pause</p>
+				<button id="closeHelp" class="primary-button">GOT IT <span>✓</span></button>
+			</div>
+		</section>
+		<footer class="game-footer"><span>A LITTLE FOCUS. A LITTLE RUSH.</span><span>HEXA RUSH <i>✦</i></span></footer>
 	</body>
 </html>

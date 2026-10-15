@@ -1,7 +1,7 @@
 
-//remember to update history function to show the respective iter speeds
 function update(dt) {
 	MainHex.dt = dt;
+	MainHex.comboClock += dt / rush;
 	if (gameState == 1) {
 		waveone.update();
 		if (MainHex.ct - waveone.prevTimeScored > 1000) {
@@ -17,7 +17,7 @@ function update(dt) {
 	for (i = 0; i < blocks.length; i++) {
 		MainHex.doesBlockCollide(blocks[i]);
 		if (!blocks[i].settled) {
-			if (!blocks[i].initializing) blocks[i].distFromHex -= blocks[i].iter * dt * settings.scale;
+			if (!blocks[i].initializing) blocks[i].distFromHex -= blocks[i].iter * dt;
 		} else if (!blocks[i].removed) {
 			blocks[i].removed = 1;
 		}
@@ -57,7 +57,7 @@ function update(dt) {
 			MainHex.doesBlockCollide(block, j, MainHex.blocks[i]);
 
 			if (!MainHex.blocks[i][j].settled) {
-				MainHex.blocks[i][j].distFromHex -= block.iter * dt * settings.scale;
+				MainHex.blocks[i][j].distFromHex -= block.iter * dt;
 			}
 		}
 	}
@@ -70,4 +70,14 @@ function update(dt) {
 	}
 
 	MainHex.ct += dt;
+	MainHex.blocks.forEach(function(side) {
+		side.forEach(function(block) {
+			block.incrementOpacity();
+			if (block.tint && block.opacity < 1) { block.iter = 2.25; block.tint = 0; }
+			block.tint = Math.max(0, block.tint - 0.02 * dt);
+		});
+	});
+	blocks.forEach(function(block) {
+		if (MainHex.ct - block.ict >= block.initLen) block.initializing = 0;
+	});
 }

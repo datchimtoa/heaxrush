@@ -38,6 +38,7 @@ function floodFill(hex, side, index, deleting) {
 }
 
 function consolidateBlocks(hex,side,index){
+	if (!hex.blocks[side] || !hex.blocks[side][index] || hex.blocks[side][index].deleted) return;
 	//record which sides have been changed
 	var sidesChanged =[];
 	var deleting=[];
@@ -64,21 +65,18 @@ function consolidateBlocks(hex,side,index){
 	}
 
 	// add scores
-	var now = MainHex.ct;
-	if(now - hex.lastCombo < settings.comboTime ){
-		settings.comboTime = (1/settings.creationSpeedModifier) * (waveone.nextGen/16.666667) * 3;
-		hex.comboMultiplier += 1;
-		hex.lastCombo = now;
+	hex.clearChain = advanceClearChain(hex.clearChain, deleting.length, hex.comboClock, settings.comboTime);
+	hex.comboMultiplier = hex.clearChain.level;
+	hex.bestCombo = Math.max(hex.bestCombo, hex.comboMultiplier);
+	hex.lastCombo = hex.comboClock;
+	if (hex.comboMultiplier > 1) {
 		var coords = findCenterOfBlocks(deletedBlocks);
 		hex.texts.push(new Text(coords['x'],coords['y'],"x "+hex.comboMultiplier.toString(),"bold Q","#fff",fadeUpAndOut));
 	}
-	else{
-		settings.comboTime = 240;
-		hex.lastCombo = now;
-		hex.comboMultiplier = 1;
-	}
-	var adder = deleting.length * deleting.length * hex.comboMultiplier;
+	var adder = hex.clearChain.awarded;
 	hex.texts.push(new Text(hex.x,hex.y,"+ "+adder.toString(),"bold Q ",deletedBlocks[0].color,fadeUpAndOut));
 		hex.lastColorScored = deletedBlocks[0].color;
 	score += adder;
+	hex.clearedBlocks += deleting.length;
+	gameFeedback('clear', hex.comboMultiplier);
 }

@@ -2,9 +2,9 @@ function drawTimer() {
 	if(gameState==1){
 		var leftVertexes = [];
 		var rightVertexes = [];
-	if(MainHex.ct - MainHex.lastCombo < settings.comboTime){
+	if(MainHex.comboClock - MainHex.lastCombo < settings.comboTime){
 		for(var i=0;i<6;i++){
-			var done = (MainHex.ct -MainHex.lastCombo);
+			var done = (MainHex.comboClock -MainHex.lastCombo);
 			if(done<(settings.comboTime)*(5-i)*(1/6)){
 				leftVertexes.push(calcSide(i,i+1,1,1));
 								rightVertexes.push(calcSide(12-i,11-i,1,1));

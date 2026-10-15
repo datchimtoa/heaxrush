@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: hexa-rush
+    runtime: node
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 22.22.0
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_BOT_USERNAME
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: hexa-rush-db
+          property: connectionString
+
+databases:
+  - name: hexa-rush-db
+    databaseName: hexa_rush
+    user: hexa_rush

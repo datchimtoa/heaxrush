@@ -1,63 +1,26 @@
-function exportSaveState() {
-	var state = {};
+// Practice records are separate from upstream Hextris scores, not official scores.
+var highScoreStorageKey = 'hexaRush.practice.highscores.v1';
 
-	if(gameState == 1 || gameState == -1 || (gameState === 0 && localStorage.getItem('saveState') !== undefined)) {
-		state = {
-			hex: $.extend(true, {}, MainHex),
-			blocks: $.extend(true, [], blocks),
-			score: score,
-			wavegen: waveone,
-			gdx: gdx,
-			gdy: gdy,
-			comboTime:settings.comboTime
-		};
-
-		state.hex.blocks.map(function(a){
-			for (var i = 0; i < a.length; i++) {
-				a[i] = $.extend(true, {}, a[i]);
-			}
-
-			a.map(descaleBlock);
-		});
-
-		for (var i = 0; i < state.blocks.length; i++) {
-			state.blocks[i] = $.extend(true, {}, state.blocks[i]);
-		}
-
-		state.blocks.map(descaleBlock);
+function readHighScores() {
+	try {
+		var saved = JSON.parse(localStorage.getItem(highScoreStorageKey) || '[]');
+		if (!Array.isArray(saved)) return [];
+		return saved.filter(function(value) {
+			return typeof value === 'number' && Number.isFinite(value) && value >= 0;
+		}).sort(function(a, b) { return b - a; }).slice(0, 3);
+	} catch (error) {
+		return [];
 	}
-
-	localStorage.setItem('highscores', JSON.stringify(highscores));
-
-	return JSONfn.stringify(state);
-}
-
-function descaleBlock(b) {
-	b.distFromHex /= settings.scale;
 }
 
 function writeHighScores() {
-		highscores.sort(
-		function(a,b){
-			a = parseInt(a, 10);
-			b = parseInt(b, 10);
-			if (a < b) {
-				return 1;
-			} else if (a > b) {
-				return -1;
-			}else {
-				return 0;
-			}
-		}
-	);
-	highscores = highscores.slice(0,3);
-	localStorage.setItem("highscores", JSON.stringify(highscores));
-}
-
-function clearSaveState() {
-	localStorage.setItem("saveState", "{}");
-}
-
-function isStateSaved() {
-	return localStorage.getItem("saveState") != "{}" && localStorage.getItem("saveState") != undefined;
+	highscores.sort(function(a, b) { return b - a; });
+	highscores = highscores.slice(0, 3);
+	try {
+		localStorage.setItem(highScoreStorageKey, JSON.stringify(highscores));
+		return true;
+	} catch (error) {
+		// Private browsing/storage restrictions must not prevent playing a round.
+		return false;
+	}
 }
