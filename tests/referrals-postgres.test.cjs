@@ -66,17 +66,17 @@ test('disposable PostgreSQL referral migration, competing first logins, code ret
 		const ended = relation.attributed_at;
 		const game = async (offset = 0, status = 'finished', version = rules.version, flagged = false) => {
 			const id = randomUUID();
-			await pool.query(`INSERT INTO game_sessions (id, user_id, request_id, rules_version, seed, status, started_at, expires_at, ended_at, server_score, flagged_at)
+			await pool.query(`INSERT INTO game_sessions (id, user_id, request_id, rules_version, seed, status, started_at, expires_at, ended_at, server_score, flagged_at, flag_reason)
 				VALUES ($1, $2, $3, $4, 1, $5, $7, $7,
-					(SELECT attributed_at FROM referrals WHERE invitee_id = $2) + $6 * INTERVAL '1 millisecond', 10, $8)`,
-				[id, concurrent[0].id, randomUUID(), version, status, offset, new Date(ended.getTime() + 60000), flagged ? ended : null]);
+					(SELECT attributed_at FROM referrals WHERE invitee_id = $2) + $6 * INTERVAL '1 millisecond', 10, $8, $9)`,
+				[id, concurrent[0].id, randomUUID(), version, status, offset, new Date(ended.getTime() + 60000), flagged ? ended : null, flagged ? 'Fixture review' : null]);
 			return id;
 		};
 		await game(-1); await game(0, 'abandoned'); await game(0, 'expired'); await game(0, 'finished', 'old-rules'); await game(0, 'finished', rules.version, true);
 		const baseline = await referrals.summary(relation.referrer_id); assert.equal(baseline.reachedAccounts, 0);
 		await game(); await game(); assert.equal((await referrals.summary(relation.referrer_id)).reachedAccounts, 0);
 		const third = await game(); assert.equal((await referrals.summary(relation.referrer_id)).reachedAccounts, 1);
-		await pool.query('UPDATE game_sessions SET flagged_at = NOW() WHERE id = $1', [third]);
+		await pool.query("UPDATE game_sessions SET flagged_at = NOW(), flag_reason = 'Fixture review' WHERE id = $1", [third]);
 		assert.equal((await referrals.summary(relation.referrer_id)).reachedAccounts, 0);
 		await pool.query("UPDATE users SET status = 'blocked' WHERE id = $1", [concurrent[0].id]);
 		assert.equal((await referrals.summary(relation.referrer_id)).invitedAccounts, baseline.invitedAccounts - 1);

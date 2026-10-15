@@ -10,6 +10,7 @@
     "migrate": "node --env-file-if-exists=.env server/migrate.cjs",
     "test": "node --test tests/*.test.cjs",
     "test:browser": "node tests/browser-smoke.mjs",
+    "test:postgres": "node scripts/test-postgres.cjs",
     "check:release": "node --env-file-if-exists=.env scripts/release-check.cjs",
     "preview:renew": "node scripts/preview-tunnel.cjs renew",
     "preview:watch": "node scripts/preview-tunnel.cjs watch",

@@ -473,6 +473,25 @@ skipped. Set `SMOKE_BASE_URL=http://localhost:8001` to run the browser suite
 against the running Node service (including its security headers) instead of
 the smoke test's temporary static server.
 
+### Automated release checks
+
+[Release checks](https://github.com/datchimtoa/heaxrush/actions/workflows/release-checks.yml)
+uses Node 22.22.0 for unit/gameplay/syntax checks and a separate, fresh PostgreSQL
+16 service for the two real integration suites. It runs on pushes to `main`,
+pull requests and manual dispatch, with read-only repository permissions and no
+production secrets or deployment steps. PostgreSQL fixtures run sequentially,
+create/drop their own schemas and never connect to the Render/player database.
+
+`npm run test:postgres` is the strict CI entry point: an explicit disposable
+loopback database/user named `hexa_rush_ci` is required; production database/token
+variables must be unset. It never loads `.env` and fails if misconfigured rather
+than silently skipping. The workflow's public test-only credentials are not app
+credentials. Do not create this database on a production server or override the
+guard to reach active players. See `server/RELEASE_READINESS.md` for isolation and
+acceptance boundaries. A green exact-commit database job is required; committed
+automation alone is not proof of a successful run, real Telegram login, backups
+or sustained Render uptime. Coin issuance remains disabled.
+
 Latest visual-refresh checks: **121 passed, 1 disposable-PostgreSQL test skipped**
 with `TEST_DATABASE_URL` unset; **15/15** standalone gameplay tests. Normal smoke
 passed against the Node preview using a fresh Firefox test profile after two

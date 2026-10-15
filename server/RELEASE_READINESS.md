@@ -22,6 +22,43 @@ API calls, authentic launch data, reward claims or synthetic users. No migration
 or reward activation is performed. Results are automated boundaries, not device,
 human/bot, backup or uptime validation.
 
+## Disposable PostgreSQL CI
+
+`.github/workflows/release-checks.yml` runs on pushes to `main`, pull requests
+and manual dispatch. Its Node 22 job runs fixtures/gameplay, syntax and commit
+whitespace checks. A separate Ubuntu job creates a fresh PostgreSQL 16 service,
+waits for `pg_isready`, then runs both real database suites sequentially. Each
+suite creates a random schema, applies/repeats all migrations and drops its schema
+in `finally`. GitHub removes the job's service afterward. There are no persistent
+volumes, production secrets, Render connections or deployment steps. The public
+`local_ci_only` password authenticates only this throwaway test service.
+
+`npm run test:postgres` does not load `.env`, and fails rather than silently
+skipping when `TEST_DATABASE_URL` is missing. It refuses remote hosts, query-string
+connection overrides, other database/user names, or populated `DATABASE_URL` or
+`TELEGRAM_BOT_TOKEN`. It accepts only a deliberately created loopback database
+named `hexa_rush_ci`, accessed by user `hexa_rush_ci`. This name/host check is a
+safety guard, not proof of isolation: never point it at an existing player database.
+No local PostgreSQL/Docker installation or active database is used to emulate CI.
+
+The workflow uses `contents: read`, SHA-pinned official checkout/setup actions,
+no persisted checkout credentials, no secrets/variables or privileged PR trigger,
+and a ten-minute job limit. It never starts the production server or enables
+rewards. Database fixtures explicitly exercise accounting in an isolated store;
+passing them does not approve live Coin issuance or human/bot controls.
+
+Verify the **Disposable PostgreSQL integration** job for the exact pushed commit
+in GitHub Actions. A workflow file, local fixture pass or skipped database test
+is not an integration pass. Failures must remain visible and be fixed, not hidden
+by weakening production constraints. This slice also records the previously
+unrun referral fixture's flag reason to satisfy migration 004's paired flag fields.
+
+The owner reports `https://hexarush.onrender.com` and **@hexarushbot**; the
+Referrals redesign is publicly visible and health returns 200. This confirms
+public delivery only. Production private configuration, database continuity,
+backups, sustained operation and genuine Telegram/device evidence remain separate.
+Do not copy the older local preview's bot token or tunnel origin into Render.
+
 ## Temporary quick-tunnel renewal
 
 ```sh
@@ -88,9 +125,10 @@ during origin rotation; don't schedule this on a production service.
    migration and backup/restore plan. `render.yaml` declares a new database; do
    not blindly apply it and split/replace existing players. Select DATABASE_URL
    privately and retain verified TLS. No data export/transfer/restore is approved.
-3. **Disposable integration:** supply an isolated TEST_DATABASE_URL for migration,
-   concurrency and rollback suites. A skipped test is still a pending gate. Never
-   temporarily aim these synthetic tests at the active database.
+3. **Disposable integration:** require a successful isolated PostgreSQL CI job for
+   the release commit, covering migration, concurrency and rollback suites. If CI
+   cannot run, supply a separately approved disposable database. A skipped/failed
+   test is still a pending gate. Never aim synthetic tests at active players.
 4. **Genuine Telegram testers:** an existing player and a consenting never-before-
    registered account must check signed numeric invites, immutable new-account-only
    attribution and post-attribution three-game aggregate progress. Do not delete

@@ -3,6 +3,22 @@
 Based on Hextris `master`, commit `8872ec47d694628e2fe668ebaa90b13d5626d95f`.
 Original authors and GPLv3-or-later licensing are retained.
 
+## ci: exercise release gates in disposable PostgreSQL
+
+- Added read-only GitHub Actions checks for Node 22 unit/gameplay/syntax/whitespace
+  and a separate throwaway PostgreSQL 16 integration service. Both previously
+  opt-in database suites run sequentially without production credentials or
+  Render connections. No deployment, schema or reward activation in the workflow.
+- Added the strict `test:postgres` entry point and safety tests: require explicit
+  loopback `hexa_rush_ci` database/user, reject live configuration/URL overrides,
+  never load `.env`, and fail on missing configuration rather than skipping.
+- Corrected the previously unrun referral fixture's paired flag reason to match
+  the existing database constraint. No production constraint or policy change.
+- Public Render health/title/current Referrals assets are available; database
+  continuity/backup approval, real Telegram/device checks and earning-policy
+  decisions remain separate gates. Workflow execution must be verified for the
+  pushed commit before claiming real PostgreSQL integration passed.
+
 ## style: make Referrals a focused invite screen
 
 - Replaced stacked notices and the oversized link field with a compact friends
