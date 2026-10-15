@@ -16,8 +16,8 @@ Original authors and GPLv3-or-later licensing are retained.
   the existing database constraint. No production constraint or policy change.
 - Public Render health/title/current Referrals assets are available; database
   continuity/backup approval, real Telegram/device checks and earning-policy
-  decisions remain separate gates. Workflow execution must be verified for the
-  pushed commit before claiming real PostgreSQL integration passed.
+  decisions remain separate gates. This workflow does not deploy to Render or
+  authorize live earning.
 
 The first CI run (`38733727302`, commit `90a299a`) passed both real PostgreSQL
 suites, unit tests and gameplay, but failed the final whitespace step: checkout's
@@ -25,6 +25,16 @@ default one-commit history made `git show --check` scan inherited upstream files
 as a root tree. The unit job now fetches HEAD and its parent (`fetch-depth: 2`);
 the regression check retains strict whitespace validation of the actual change,
 without rewriting original source. Earlier failed CI evidence is retained.
+
+Verified on 2026-10-15: [run 38735513217](https://github.com/datchimtoa/heaxrush/actions/runs/38735513217)
+for fix commit `ede1930ee0094524678a48c61d3f8de3143a830a` passed both jobs.
+The PostgreSQL job ran both integration suites: 2 passed, 0 failed, 0 skipped.
+The Node 22 job passed unit/fixture tests, all 15 standalone gameplay tests,
+syntax and commit whitespace. Fresh local checks passed 196 tests with the two
+database suites explicitly skipped locally, 15 standalone gameplay tests and
+syntax in all 71 JS/CJS/MJS files. A fresh public boundary check passed 22
+endpoints without valid player launches or database writes. No production
+configuration/schema/data or reward-policy changes were made.
 
 ## style: make Referrals a focused invite screen
 

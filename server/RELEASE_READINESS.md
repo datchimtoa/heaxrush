@@ -53,6 +53,37 @@ is not an integration pass. Failures must remain visible and be fixed, not hidde
 by weakening production constraints. This slice also records the previously
 unrun referral fixture's flag reason to satisfy migration 004's paired flag fields.
 
+### Verified automated gate — 2026-10-15
+
+[GitHub Actions run 38735513217](https://github.com/datchimtoa/heaxrush/actions/runs/38735513217)
+completed successfully for `ede1930ee0094524678a48c61d3f8de3143a830a`:
+
+- **Disposable PostgreSQL integration:** both real suites passed (2 passed,
+  0 failed, 0 skipped). They cover repeated migrations, auth/streak lifecycle,
+  authoritative scoring/read models, ledger concurrency and rollback, and
+  competing referral logins/publication, compatibility and flagged progress.
+- **Node 22 unit, gameplay and syntax:** unit/fixture tests, 15 standalone
+  gameplay tests, JavaScript syntax and actual commit whitespace all passed.
+- Fresh local validation passed 196 tests, with only the two disposable suites
+  skipped locally; standalone gameplay passed 15/15 and all 71 JS/CJS/MJS files
+  passed syntax checks. Local Node is 24; CI uses the pinned Node 22.22.0.
+- The public Render boundary check passed 22 endpoints using no player cookie
+  or valid launch data. No active player database was used for integration tests.
+
+The initial [run 38733727302](https://github.com/datchimtoa/heaxrush/actions/runs/38733727302)
+for `90a299a` passed PostgreSQL/unit/gameplay but failed whitespace because the
+default shallow checkout treated inherited files as a root-tree addition. The
+unit checkout now fetches two commits; local shallow-clone reproduction confirms
+depth 1 fails and depth 2 checks the actual change successfully. The failure is
+retained, not reclassified as a successful full run. No inherited source cleanup
+or production constraint changes were needed.
+
+This closes the previously unrun disposable integration gate, not Phase 2E's
+remaining real-device, production database/backup or sustained-uptime gates.
+Validate each later publication's exact-commit run too. CI has no deployment
+step; GitHub publication alone does not confirm a new Render deployment. Coin
+issuance, earning-policy approvals and human/bot risk controls are unchanged.
+
 The owner reports `https://hexarush.onrender.com` and **@hexarushbot**; the
 Referrals redesign is publicly visible and health returns 200. This confirms
 public delivery only. Production private configuration, database continuity,
