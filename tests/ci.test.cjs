@@ -40,6 +40,8 @@ test('release workflow is read-only, isolated, pinned and never imports producti
 	assert.match(workflow, /permissions:\n  contents: read/);
 	assert.match(workflow, /pull_request:/); assert.match(workflow, /workflow_dispatch:/);
 	assert.equal((workflow.match(/persist-credentials: false/g) || []).length, 2);
+	assert.match(workflow.split('  postgres:')[0], /with:\n\s+# [^\n]+\n\s+fetch-depth: 2\n\s+persist-credentials: false/,
+		'unit whitespace checks need the parent commit so upstream files are not treated as newly added');
 	assert.equal((workflow.match(/uses: actions\/[\w-]+@[a-f0-9]{40}/g) || []).length, 4);
 	assert.match(workflow, /image: postgres:16/);
 	assert.match(workflow, /POSTGRES_DB: hexa_rush_ci/);

@@ -19,6 +19,13 @@ Original authors and GPLv3-or-later licensing are retained.
   decisions remain separate gates. Workflow execution must be verified for the
   pushed commit before claiming real PostgreSQL integration passed.
 
+The first CI run (`38733727302`, commit `90a299a`) passed both real PostgreSQL
+suites, unit tests and gameplay, but failed the final whitespace step: checkout's
+default one-commit history made `git show --check` scan inherited upstream files
+as a root tree. The unit job now fetches HEAD and its parent (`fetch-depth: 2`);
+the regression check retains strict whitespace validation of the actual change,
+without rewriting original source. Earlier failed CI evidence is retained.
+
 ## style: make Referrals a focused invite screen
 
 - Replaced stacked notices and the oversized link field with a compact friends
