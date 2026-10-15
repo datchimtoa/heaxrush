@@ -453,7 +453,7 @@ node /home/devroom/hetris/hextris/tests/browser-smoke.mjs
 SMOKE_REDUCED_MOTION=1 node /home/devroom/hetris/hextris/tests/browser-smoke.mjs
 ```
 
-The browser test also requires Firefox, launches its own headless test profile
+The browser test also requires Firefox, launches its own fresh headless test profile
 and temporary local server, and writes ignored screenshots to
 `/home/devroom/hetris/hextris/.test-artifacts`. Set `FIREFOX_BIN` if Firefox is
 not on PATH, or `FIREFOX_BIDI_PORT` to use an already-running test instance.
@@ -461,6 +461,8 @@ not on PATH, or `FIREFOX_BIDI_PORT` to use an already-running test instance.
 `ui.prefersReducedMotion=1` preference and checks static panels/icons, rapid
 navigation, three viewport sizes and gameplay isolation. An external Firefox
 instance must already have that preference when using `FIREFOX_BIDI_PORT`.
+Managed profiles are unique per invocation; cleanup waits for the owned browser
+to close before another mode starts. Profiles remain ignored and are not CI artifacts.
 The gameplay/browser suites remain dependency-free. Backend tests need `npm ci`
 for Express and pg. Authentication tests exercise signed fixture launch data,
 HTTP cookies, CSRF/origin checks, expiry, replay prevention, and private-file
@@ -481,6 +483,18 @@ uses Node 22.22.0 for unit/gameplay/syntax checks and a separate, fresh PostgreS
 pull requests and manual dispatch, with read-only repository permissions and no
 production secrets or deployment steps. PostgreSQL fixtures run sequentially,
 create/drop their own schemas and never connect to the Render/player database.
+A third job runs the full normal Firefox smoke suite, then the real reduced-motion
+suite, against a temporary allowlisted Node service with database/bot configuration
+empty. It never loads `.env` or connects to the deployed app. Firefox comes from
+the Ubuntu 24.04 runner image; its version is recorded in the job log.
+
+The browser job retains only fixture PNG screenshots and three named test/service
+logs for seven days, even on failure. Browser profiles/cookies, private files and
+runtime state are not uploaded. Check all three jobs for the **exact release
+commit**. Browser authentication, referrals and account progress use transport
+fixtures; headless audio uses rendered samples when needed, not audible output.
+Real Telegram login, new/existing-account invite and device checks still need
+consenting testers: follow [the acceptance checklist](server/TELEGRAM_ACCEPTANCE.md).
 
 `npm run test:postgres` is the strict CI entry point: an explicit disposable
 loopback database/user named `hexa_rush_ci` is required; production database/token

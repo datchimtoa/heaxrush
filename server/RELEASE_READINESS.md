@@ -90,6 +90,40 @@ public delivery only. Production private configuration, database continuity,
 backups, sustained operation and genuine Telegram/device evidence remain separate.
 Do not copy the older local preview's bot token or tunnel origin into Render.
 
+## Automated Firefox gate and genuine-device handoff
+
+The Release checks workflow also runs **Firefox normal and reduced motion** on
+an Ubuntu 24.04 hosted runner with Node 22.22.0 and the image's Firefox version
+(printed in the log). It runs the full normal smoke suite followed by the real
+`ui.prefersReducedMotion=1` suite, sequentially on their separate profiles. The
+temporary Node service uses the actual frontend allowlist/security headers but
+has empty database/token/username settings; it starts directly without `.env`
+loading. The shell exit trap stops only that job's server. No live credentials,
+player data, production origin, schema changes or service restarts are involved.
+
+Both modes must pass without suppressing errors. The job uses Bash pipefail so
+writing logs with `tee` cannot hide a failed test. Only top-level fixture PNGs
+and the named normal/reduced/service logs are uploaded, including after failure,
+with seven-day retention. The upload explicitly includes the hidden artifact
+directory, **not** its browser profile subdirectories or arbitrary private files.
+Do not broaden it to upload `.test-artifacts/`, `.preview/` or the repository.
+
+Local pre-publication validation passed both modes sequentially against the
+isolated Node service, 197 unit/fixture tests (two disposable database suites
+skipped locally), 15 standalone gameplay tests and all 71 JavaScript syntax
+checks. Fixture screenshots were reviewed. Managed browser profiles are fresh
+per invocation, and cleanup waits for the owned child to close. A missing-browser
+failure-path check also confirmed an error exit, not a wait on a nonexistent PID.
+
+Verify the exact pushed commit's third job; workflow presence or a local pass is
+not proof of hosted Firefox success. Screenshots and API values use synthetic
+fixtures, not real Telegram launches/referrals. Offline Web Audio samples do not
+verify device speakers. See [TELEGRAM_ACCEPTANCE.md](TELEGRAM_ACCEPTANCE.md) for
+the controlled genuine-new-account invite, existing-account exclusion, login,
+score-saving, UTC/multi-day streak and device/motion/audio checks, plus private
+evidence and database/backup/uptime sign-off. Those gates remain pending until
+actually observed and approved. Coin issuance and all earning blockers remain.
+
 ## Temporary quick-tunnel renewal
 
 ```sh

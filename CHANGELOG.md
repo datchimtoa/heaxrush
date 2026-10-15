@@ -3,6 +3,31 @@
 Based on Hextris `master`, commit `8872ec47d694628e2fe668ebaa90b13d5626d95f`.
 Original authors and GPLv3-or-later licensing are retained.
 
+## ci: automate Firefox release checks and prepare Telegram acceptance
+
+- Added an isolated Node 22/Firefox job to run full normal and genuine reduced-
+  motion browser checks sequentially against the actual Node frontend allowlist.
+  Database/bot settings are empty; no private environment or production access.
+- Browser checks use fresh managed profiles and wait for the owned browser to
+  close, avoiding reused storage/profile locks between invocations and modes.
+- Retain only fixture screenshots and named test/service logs for seven days,
+  including failures. No profile/cookie directories, runtime state or real-user
+  evidence are uploaded. Official actions remain SHA-pinned and read-only.
+- Added a concrete genuine Telegram/device acceptance checklist for consenting
+  new/existing-account invite testers, saved scores/retries, UTC streaks, safe
+  areas, reduced motion and audible music. Backup/data continuity, uptime and
+  owner sign-off remain explicit gates, not automated or claimed complete.
+- No gameplay, auth/referral, schema, reward policy, live configuration or data
+  changes. Coin issuance remains disabled; this does not start ads or wallets.
+
+Local validation: 197 unit/fixture tests passed, with only the two disposable
+PostgreSQL suites skipped locally; standalone gameplay 15/15 and all 71 source/
+test JavaScript syntax checks passed. Full normal and real reduced-motion Firefox
+passed sequentially against an isolated Node service, with screenshots reviewed.
+The missing-Firefox failure path exits with an error rather than hanging. Verify
+all three hosted jobs for the exact published commit; these local results do not
+claim real Telegram login/referrals, audible playback or production deployment.
+
 ## ci: exercise release gates in disposable PostgreSQL
 
 - Added read-only GitHub Actions checks for Node 22 unit/gameplay/syntax/whitespace

@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { dirname, extname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
@@ -66,8 +66,7 @@ async function runSmoke() {
 try {
 	const port = Number(process.env.FIREFOX_BIDI_PORT || 9235);
 	if (!process.env.FIREFOX_BIDI_PORT) {
-		const profile = resolve(artifacts, reducedMotionTest ? 'browser-reduced-motion-profile' : 'browser-profile');
-		await mkdir(profile, { recursive: true });
+		const profile = await mkdtemp(resolve(artifacts, reducedMotionTest ? 'browser-reduced-motion-profile-' : 'browser-profile-'));
 		if (reducedMotionTest) await writeFile(resolve(profile, 'user.js'), 'user_pref("ui.prefersReducedMotion", 1);\n');
 		browser = spawn(process.env.FIREFOX_BIN || 'firefox', ['--headless', '--no-remote', '--profile', profile, '--remote-debugging-port', String(port), 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
 		browser.on('error', error => errors.push(error.message));
@@ -1104,7 +1103,12 @@ try {
 	console.log('Screenshots:', artifacts);
 } finally {
 	if (socket) socket.close();
-	if (browser) browser.kill('SIGTERM');
+	if (browser && browser.pid && browser.exitCode === null && browser.signalCode === null) {
+		const closed = new Promise(resolve => browser.once('close', resolve));
+		browser.kill('SIGTERM');
+		const timeout = setTimeout(() => browser.kill('SIGKILL'), 5000);
+		try { await closed; } finally { clearTimeout(timeout); }
+	}
 	for (const request of pending.values()) clearTimeout(request.timer);
 	server.closeAllConnections();
 	await new Promise(resolve => server.close(resolve));

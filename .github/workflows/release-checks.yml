@@ -40,6 +40,64 @@ jobs:
           find js server scripts tests -type f \( -name '*.js' -o -name '*.cjs' -o -name '*.mjs' \) -print0 | xargs -0 -n 1 node --check
           git show --format= --check HEAD
 
+  browser:
+    name: Firefox normal and reduced motion
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      DATABASE_URL: ''
+      TEST_DATABASE_URL: ''
+      TELEGRAM_BOT_TOKEN: ''
+      TELEGRAM_BOT_USERNAME: ''
+      NODE_ENV: test
+      APP_ORIGIN: http://127.0.0.1:8001
+      PORT: '8001'
+      SMOKE_BASE_URL: http://127.0.0.1:8001
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22.22.0'
+          cache: npm
+      - run: npm ci
+      - name: Run both modes sequentially against the isolated Node service
+        shell: bash
+        run: |
+          firefox --version
+          mkdir -p .test-artifacts
+          # Start directly, never loading private application configuration.
+          node server/index.cjs > .test-artifacts/browser-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true; wait "$server_pid" 2>/dev/null || true' EXIT
+          node --input-type=module -e '
+            for (let attempt = 0; ; attempt++) {
+              try {
+                const response = await fetch(process.env.SMOKE_BASE_URL, { signal: AbortSignal.timeout(1000) });
+                if (response.status !== 200) throw Error("Test service not ready");
+                break;
+              } catch (error) {
+                if (attempt === 29) throw error;
+                await new Promise(resolve => setTimeout(resolve, 250));
+              }
+            }
+          '
+          npm run test:browser 2>&1 | tee .test-artifacts/browser-normal.log
+          SMOKE_REDUCED_MOTION=1 npm run test:browser 2>&1 | tee .test-artifacts/browser-reduced.log
+      - name: Retain only fixture screenshots and test logs, never browser profiles
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: firefox-fixture-evidence
+          retention-days: 7
+          include-hidden-files: true
+          path: |
+            .test-artifacts/*.png
+            .test-artifacts/browser-normal.log
+            .test-artifacts/browser-reduced.log
+            .test-artifacts/browser-server.log
+
   postgres:
     name: Disposable PostgreSQL integration
     runs-on: ubuntu-latest
