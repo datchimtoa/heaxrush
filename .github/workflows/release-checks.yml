@@ -65,6 +65,7 @@ jobs:
       - name: Run both modes sequentially against the isolated Node service
         shell: bash
         run: |
+          set -euo pipefail
           firefox --version
           mkdir -p .test-artifacts
           # Start directly, never loading private application configuration.

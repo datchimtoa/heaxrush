@@ -64,6 +64,7 @@ test('Firefox CI runs both motion modes sequentially on an isolated allowlisted 
 	for (const key of ['DATABASE_URL', 'TEST_DATABASE_URL', 'TELEGRAM_BOT_TOKEN', 'TELEGRAM_BOT_USERNAME']) assert.match(browser, new RegExp(key + ": ''"));
 	assert.match(browser, /NODE_ENV: test/);
 	assert.match(browser, /SMOKE_BASE_URL: http:\/\/127\.0\.0\.1:8001/);
+	assert.match(browser, /set -euo pipefail/);
 	assert.match(browser, /firefox --version/);
 	assert.match(browser, /node server\/index\.cjs > \.test-artifacts\/browser-server\.log/);
 	assert.match(browser, /trap 'kill "\$server_pid"[^\n]+wait "\$server_pid"[^\n]+EXIT/);
