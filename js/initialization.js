@@ -46,6 +46,7 @@ $(document).ready(function() {
 	window.addEventListener('resize', scaleCanvas);
 	window.addEventListener('blur', function() { if (gameState === 1) pause(); });
 	document.addEventListener('visibilitychange', function() {
+		if (document.hidden && typeof resetResultAd === 'function') resetResultAd();
 		if (document.hidden && gameState === 1) pause();
 		syncGameMusic();
 	});

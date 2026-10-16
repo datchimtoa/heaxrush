@@ -1,4 +1,5 @@
 const { readFileSync } = require('node:fs');
+const { readAdsgramConfig } = require('./adsgram.cjs');
 
 function readConfig(env = process.env) {
 	const production = env.NODE_ENV === 'production';
@@ -11,6 +12,7 @@ function readConfig(env = process.env) {
 	if (botUsername && !/^[a-z][a-z0-9_]{1,28}bot$/i.test(botUsername)) throw new Error('Invalid TELEGRAM_BOT_USERNAME');
 	return {
 		production, port, origin: origin.origin, botToken: env.TELEGRAM_BOT_TOKEN || '', botUsername,
+		adsgram: readAdsgramConfig(env),
 		databaseUrl: env.DATABASE_URL || '',
 		ssl: env.DATABASE_SSL_CA_FILE ? { ca: readFileSync(env.DATABASE_SSL_CA_FILE, 'utf8'), rejectUnauthorized: true } : undefined,
 		cookieName: production ? '__Host-hexaRushSession' : 'hexaRushSession',

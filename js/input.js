@@ -7,6 +7,7 @@ function addKeyListeners() {
 	$('#rotateRight').on('pointerdown', function(e) { e.preventDefault(); rotatePlayer(-1); });
 	$('#practiceBtn').on('click', startPracticeRun);
 	$('#retryResult').on('click', function() { syncOfficialRun(true); });
+	$('#resultAdButton').on('click', function() { showResultAdCheck(); });
 	canvas.addEventListener('pointerdown', function(e) {
 		if (gameState !== 1) return;
 		e.preventDefault();
@@ -14,6 +15,8 @@ function addKeyListeners() {
 		rotatePlayer(e.clientX < bounds.left + bounds.width / 2 ? 1 : -1);
 	});
 	document.addEventListener('keydown', function(e) {
+		// Leave SDK dialog focus/close controls alone; game buttons still work.
+		if (typeof resultAdBusy !== 'undefined' && resultAdBusy) return;
 		var key = e.key.toLowerCase();
 		var dialog = document.querySelector('.modal-backdrop:not([hidden])');
 		if (key === 'tab' && dialog) {

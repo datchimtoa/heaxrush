@@ -21,6 +21,7 @@ function scaleCanvas() {
 }
 
 function init(seed) {
+	if (typeof resetResultAd === 'function') resetResultAd();
 	runGeneration++;
 	abandonOfficialRun();
 	gameRandom = seededGameRandom(seed === undefined ? crypto.getRandomValues(new Uint32Array(1))[0] : seed);

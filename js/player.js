@@ -203,6 +203,7 @@ function goBackHomeTab() {
 }
 
 function setPlayerAccount(state, user, reason) {
+	if (typeof resetResultAd === 'function') resetResultAd();
 	playerAccount = { state: state, user: state === 'connected' ? user : null, reason: reason || null };
 	if (typeof resetCoinDisplay === 'function') resetCoinDisplay();
 	if (typeof resetLeaderboardDisplay === 'function') resetLeaderboardDisplay();

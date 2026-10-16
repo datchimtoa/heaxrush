@@ -1,7 +1,10 @@
 # Phase 2E: release readiness and preview operations
 
-This is operations tooling, not a completed production release. Coin issuance
-remains disabled. Never run disposable integration suites against active players.
+The owner operates Hexa Rush as a live product on Render. This document describes
+development checks and remaining validation evidence, not a preview-only label
+for that deployment. Coin issuance remains disabled. Never run disposable
+integration suites against active players. Phase 3 AdsGram SDK preparation is
+documented in [ADSGRAM.md](ADSGRAM.md); live rewarded ads are not activated.
 
 ## Available checks
 

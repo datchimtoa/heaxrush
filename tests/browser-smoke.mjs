@@ -127,6 +127,58 @@ try {
 	async function openProfile() { await click('#openProfile'); }
 	async function openOptions() { await openProfile(); await click('#openSettings'); }
 	async function openRecords() { await openProfile(); await click('[data-home-panel="profile"] [data-home-tab="activity"]'); }
+	async function checkAdsgram() {
+		await evaluate(`
+			window.adPreviousFetch = window.fetch; window.adPreviousAccount = playerAccount; window.adPreviousSdk = window.Adsgram; window.adPreviousTelegram = window.Telegram;
+			window.Telegram = window.Telegram || { WebApp: {} };
+			window.adBefore = JSON.stringify([score, gameTicks, playerRecords, playerPreferences]); window.adCalls = []; window.adMode = 'debug';
+			window.fetch = async (route, options) => {
+				adCalls.push({ route, body: options.body || null, credentials: options.credentials, cache: options.cache });
+				return new Response(JSON.stringify({ provider: 'adsgram', mode: adMode, blockId: adMode === 'debug' ? '123456' : null, rewardsEnabled: false }));
+			};
+			window.adSdkCalls = []; window.adShowMode = 'success';
+			window.Adsgram = { init: options => { adSdkCalls.push(options); return {
+				show: () => adShowMode === 'pending' ? new Promise(resolve => { window.finishAdFixture = resolve; }) : adShowMode === 'error' ? Promise.reject(Error('fixture no-fill')) : Promise.resolve({ done: true, error: false }),
+				destroy: () => { window.adDestroyed = true; }
+			}; } };
+			setPlayerAccount('connected', { id: 'ads-owner', username: 'fixture_player', officialBest: 0 });
+			officialRun = { id: 'ads-fixture', verified: true }; gameState = 2; document.body.dataset.screen = 'game';
+			$('#startScreen').prop('hidden', true); $('#gameoverscreen').prop('hidden', false);
+			loadResultAd(); return null;
+		`);
+		await waitFor('!document.querySelector("#resultAdCheck").hidden', 'optional AdsGram diagnostic config did not settle');
+		assert.equal(await evaluate('return adSdkCalls.length === 0 && !Array.from(document.scripts).some(s => s.src.startsWith("https://sad.adsgram.ai/"));'), true, 'no provider request/init before explicit action');
+		for (const [width, height] of [[390, 844], [320, 568], [568, 320]]) {
+			await command('browsingContext.setViewport', { context, viewport: { width, height }, devicePixelRatio: 1 });
+			await click('#resultAdButton');
+			await waitFor('!resultAdBusy', 'ad completion fixture did not settle');
+			assert.match(await evaluate('return document.querySelector("#resultAdStatus").textContent;'), /Test ad completed.*No reward/);
+			assert.equal(await evaluate('return adSdkCalls.at(-1).debug === true && adSdkCalls.at(-1).debugConsole === false && adBefore === JSON.stringify([score, gameTicks, playerRecords, playerPreferences]);'), true);
+			assert.equal(await evaluate('const r = document.querySelector("#resultAdButton").getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth && r.top >= 0 && r.bottom <= innerHeight && document.querySelector("#gameoverscreen").scrollWidth <= innerWidth;'), true, 'optional diagnostic action reachable without horizontal overflow');
+			await screenshot('adsgram-' + (reducedMotionTest ? 'reduced-' : '') + width + 'x' + height + '-fixture');
+		}
+		await evaluate('adShowMode = "error"; return null;'); await click('#resultAdButton');
+		await waitFor('!resultAdBusy', 'no-fill fixture did not settle');
+		assert.match(await evaluate('return document.querySelector("#resultAdStatus").textContent;'), /unavailable/);
+		await evaluate('adShowMode = "pending"; return null;'); await click('#resultAdButton');
+		await waitFor('typeof finishAdFixture === "function"', 'pending fixture did not start');
+		await evaluate('setPlayerAccount("guest"); finishAdFixture({ done: true, error: false }); return null;');
+		await waitFor('!resultAdBusy', 'account reset did not cancel SDK check');
+		assert.equal(await evaluate('return document.querySelector("#resultAdCheck").hidden && document.querySelector("#resultAdStatus").textContent === "" && adDestroyed && adBefore === JSON.stringify([score, gameTicks, playerRecords, playerPreferences]);'), true, 'late SDK callback has no score/account/history authority');
+		await evaluate(`
+			setPlayerAccount('connected', { id: 'ads-owner' }); adMode = 'disabled'; loadResultAd(); return null;
+		`);
+		await waitFor('adCalls.length === 2', 'disabled config was not requested');
+		assert.equal(await evaluate('return document.querySelector("#resultAdCheck").hidden && document.querySelector("#resultAdButton").hidden && adCalls.every(c => c.route === "/api/adsgram" && c.body === null && c.credentials === "same-origin" && c.cache === "no-store");'), true, 'disabled diagnostic is excluded from result keyboard focus');
+		await evaluate(`
+			window.fetch = adPreviousFetch;
+			if (adPreviousSdk) window.Adsgram = adPreviousSdk; else delete window.Adsgram;
+			if (adPreviousTelegram) window.Telegram = adPreviousTelegram; else delete window.Telegram;
+			setPlayerAccount(adPreviousAccount.state, adPreviousAccount.user, adPreviousAccount.reason); setStartScreen(); return null;
+		`);
+		await command('browsingContext.setViewport', { context, viewport: { width: 1280, height: 900 }, devicePixelRatio: 1 });
+		console.log('PASS: lazy development-only AdsGram result diagnostics, responsive action, no-fill/cancel/account isolation and no rewards (SDK/API fixtures, no live ads).');
+	}
 	async function checkReferrals() {
 		await evaluate(`
 			showHomeTab('home', false);
@@ -383,6 +435,7 @@ try {
 	assert.equal(new Set(iconColors).size, 5, 'each destination has a different filled icon color');
 	assert.ok(iconColors.every(color => color !== 'none'));
 	assert.equal(await evaluate('return document.querySelectorAll("#openProfile svg circle").length > 0 && document.querySelectorAll(".feature-symbol svg").length === 4 && document.querySelectorAll("[data-home-panel=profile] .menu-symbol svg").length === 3;'), true, 'local smiley, feature and Profile action artwork');
+	await checkAdsgram();
 	if (process.env.SMOKE_REFERRALS_ONLY === '1') {
 		await checkReferrals();
 		assert.deepEqual(errors, []); assert.deepEqual(external, []);

@@ -3,6 +3,7 @@ const path = require('node:path');
 const { randomBytes } = require('node:crypto');
 const { AuthError, validateTelegramData, hashToken } = require('./telegram.cjs');
 const { GameError } = require('./replay.cjs');
+const { adsgramView } = require('./adsgram.cjs');
 
 function readSessionToken(req, name) {
 	const cookies = (req.headers.cookie || '').split(';').map(value => value.trim());
@@ -17,11 +18,12 @@ function createApp({ config, store, games = null, coins = null, leaderboards = n
 	app.disable('x-powered-by');
 	// Render is the only public-facing proxy in the selected production topology.
 	if (config.production) app.set('trust proxy', 1);
+	const adDebug = adsgramView(config).mode === 'debug';
 	app.use((req, res, next) => {
 		res.set({
 			'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer',
 			'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-			'Content-Security-Policy': "default-src 'self'; script-src 'self' https://telegram.org; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"
+			'Content-Security-Policy': "default-src 'self'; script-src 'self' https://telegram.org" + (adDebug ? ' https://sad.adsgram.ai' : '') + "; style-src 'self' 'unsafe-inline'; img-src 'self' data:" + (adDebug ? ' https://*.adsgram.ai' : '') + "; font-src 'self'; connect-src 'self'" + (adDebug ? ' https://*.adsgram.ai; media-src https://*.adsgram.ai; frame-src https://*.adsgram.ai' : '') + "; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"
 		});
 		if (config.production) res.set('Strict-Transport-Security', 'max-age=31536000');
 		next();
@@ -219,6 +221,24 @@ function createApp({ config, store, games = null, coins = null, leaderboards = n
 	app.post('/api/referrals/code', async (req, res, next) => {
 		try { const owner = await referralOwner(req, res, true); res.json(await referrals.createCode(owner)); }
 		catch (error) { next(error); }
+	});
+	const adReads = new Map();
+	app.get('/api/adsgram', async (req, res, next) => {
+		try {
+			if (!store || !config.botToken) throw new GameError('Account service is not configured', 503);
+			const token = readSessionToken(req, config.cookieName);
+			const session = token && await store.getSession(hashToken(token));
+			if (!session) throw new AuthError('Not authenticated');
+			if (Object.keys(req.query).length) throw new GameError('Ad configuration accepts no fields');
+			const time = now(), key = session.user.id;
+			for (const [id, bucket] of adReads) if (bucket.reset <= time) adReads.delete(id);
+			const bucket = adReads.get(key) || { count: 0, reset: time + 60000 };
+			if (bucket.count >= 20 || (!adReads.has(key) && adReads.size >= 10000)) {
+				res.set('Retry-After', '60'); throw new GameError('Too many ad configuration requests', 429);
+			}
+			bucket.count++; adReads.set(key, bucket);
+			res.json(adsgramView(config));
+		} catch (error) { next(error); }
 	});
 	app.use('/api', (req, res) => res.status(404).json({ error: 'API route not found' }));
 	// Never serve the repository root: it contains backend code and environment files.

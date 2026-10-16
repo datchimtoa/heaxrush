@@ -7,6 +7,10 @@ Source: <https://github.com/datchimtoa/heaxrush>. This is the game/service
 repository; private environment files, preview state and test artifacts are not
 included. Original Hextris attribution and GPLv3-or-later licensing are retained.
 
+The owner-operated **live game** is <https://hexarush.onrender.com> through
+**@hexarushbot**. Local previews and isolated CI fixtures are development tools,
+not the deployment's status. Guest practice is a play mode, not a release label.
+
 ## Play locally
 
 ```sh
@@ -167,7 +171,7 @@ devices. Authentication never upgrades local records into verified scores.
 Clearing browser data removes them. If storage is blocked or full, the UI
 explains that changes last only for this visit, and playing still works.
 
-This is not a completed production Telegram rewards application. Authentication,
+This is a live Telegram game, not yet an earning/withdrawal product. Authentication,
 authoritative scoring and the Coins ledger are implemented; earlier device tests
 recorded real connected players and finished official runs. This visual refresh
 uses fixtures for authenticated browser checks and still needs a real Telegram
@@ -188,8 +192,32 @@ patterns and color/tint mappings.
 Telegram authentication and server-authoritative gameplay sessions/scoring are
 implemented with Express/PostgreSQL. Authenticated Play starts a verified run;
 ordinary browser Play stays local practice. Official and local records are
-separate. The Coins ledger is implemented with earning disabled. Ads, wallets, withdrawals,
-referral rewards, and leaderboard rewards remain out of scope.
+separate. The Coins ledger is implemented with earning disabled. Live ad activation,
+wallets, withdrawals, referral rewards, and leaderboard rewards remain disabled;
+the AdsGram preparation below does not activate earning.
+
+## AdsGram preparation (Phase 3A)
+
+Rewarded SDK/configuration preparation is implemented, **not live rewarded-ad
+activation**. Set the numeric Reward block in `ADSGRAM_REWARDED_BLOCK_ID` through
+owner-managed Render settings; never substitute an `int-...` Interstitial block.
+Do not commit private setup files or actual deployment values. Supplying an ID
+alone does not enable ads, rewards, Coin issuance, revive or bonuses.
+
+The authenticated read-only `/api/adsgram` configuration stays `disabled` in
+production. An explicit non-production `ADSGRAM_DEBUG=true` permits an optional
+**Development only** SDK check after a saved account result inside Telegram.
+The SDK is loaded only on an explicit click, never during normal play or initial
+page loading. Skip/no-fill/errors, timeout, hidden documents, account changes and
+new runs cancel or discard stale work; another game is never gated on an ad.
+SDK completion never changes scores, practice records, Coins or eligibility.
+
+No active Reward URL exists: the earlier proposed
+`/api/adsgram/reward?userid=[userId]` still returns 404. Leave the provider's
+optional Reward URL empty until a real verification contract is implemented and
+deployed. Do not treat that example as a functioning callback. See
+[the AdsGram runbook](server/ADSGRAM.md) for provider requirements, deployment
+settings and the precise remaining reward/verification decisions.
 
 ## Authoritative game sessions
 

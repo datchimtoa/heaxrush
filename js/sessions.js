@@ -117,6 +117,7 @@ function syncOfficialRun(ending) {
 				if (typeof showResultCoins === 'function') showResultCoins(result.coins);
 				$('#resultEyebrow').text('NICE RUN');
 				$('#retryResult').prop('hidden', true);
+				if (typeof loadResultAd === 'function') loadResultAd();
 			} else if (officialRun === run) {
 				if (gameTicks < HexaSessionRules.maxTicks) $('#gameMode').text('Chase your next best!');
 				$('#runNotice').prop('hidden', true);

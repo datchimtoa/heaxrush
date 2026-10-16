@@ -3,6 +3,27 @@
 Based on Hextris `master`, commit `8872ec47d694628e2fe668ebaa90b13d5626d95f`.
 Original authors and GPLv3-or-later licensing are retained.
 
+## feat: prepare AdsGram rewarded SDK integration (Phase 3A)
+
+- Added validated Reward-block environment configuration, owner-authenticated
+  no-store/rate-limited ad configuration reads and lazy SDK handling with an
+  explicit non-production diagnostic action after saved results. Production
+  stays hidden/disabled; debug mode is rejected in production.
+- No automatic ads, live reward promises or payouts. SDK success never credits
+  Coins, rewrites scores/history or authorizes a benefit. Account/run/visibility
+  resets, late results, duplicate clicks, no-fill/errors and timeouts are handled.
+- Added fixture unit/HTTP/browser checks and a provider/setup runbook. The supplied
+  Reward/Interstitial IDs remain separate and private; no setup file, live
+  environment value, provider credential or player data is published.
+- Corrected current release wording: Render is the live game; local/CI tests are
+  validation environments, not its product status. Reward URL is still unimplemented
+  (404), pending authenticated unique provider events and an approved benefit.
+  No schema, fixed rules, earning policy, TADS, wallet or withdrawal changes.
+- Local validation: 210 unit/fixture tests passed (two disposable PostgreSQL
+  suites skipped locally), 15/15 standalone gameplay and normal/real reduced-
+  motion Firefox at three screen sizes. New AdsGram checks use SDK/API fixtures,
+  not genuine provider impressions, dashboard validation or revenue evidence.
+
 ## ci: automate Firefox release checks and prepare Telegram acceptance
 
 - Added an isolated Node 22/Firefox job to run full normal and genuine reduced-
