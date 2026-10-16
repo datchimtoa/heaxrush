@@ -14,7 +14,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const artifacts = resolve(root, '.test-artifacts');
 await mkdir(artifacts, { recursive: true });
 const requests = [];
-const publicFiles = new Set(['index.html', 'credits.html', 'LICENSE.md', 'README.md', 'CHANGELOG.md', 'favicon.ico']);
+const publicFiles = new Set(['index.html', 'tads-frame.html', 'credits.html', 'LICENSE.md', 'README.md', 'CHANGELOG.md', 'favicon.ico']);
 const publicDirectories = new Set(['js', 'style', 'vendor', 'images']);
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.otf': 'font/otf' };
 const server = createServer(async (req, res) => {
@@ -127,6 +127,85 @@ try {
 	async function openProfile() { await click('#openProfile'); }
 	async function openOptions() { await openProfile(); await click('#openSettings'); }
 	async function openRecords() { await openProfile(); await click('[data-home-panel="profile"] [data-home-tab="activity"]'); }
+	async function checkTads() {
+		// This preload only supplies a provider fixture to the isolated child frame.
+		// No genuine provider SDK/impression, Telegram identity or ad click is sent.
+		const preload = await command('script.addPreloadScript', { functionDeclaration: `() => {
+			window.tads = { init(options) {
+				parent.tadsFixtureOptions = { widgetId: options.widgetId, type: options.type, debug: options.debug, rewardCallback: !!(options.onClickReward || options.onShowReward) };
+				return { async loadAd() {
+					if (parent.tadsFixtureMode === 'no-fill') { options.onAdsNotFound(); throw Error('Fixture no fill'); }
+					if (parent.tadsFixtureMode === 'pending') await new Promise(resolve => { parent.tadsFixtureResolve = resolve; });
+				}, async showAd() {
+					const slot = document.getElementById('tads-container-' + options.widgetId);
+					const button = document.createElement('button'); button.textContent = 'Fixture sponsor · static banner';
+					button.style.cssText = 'width:100%;min-height:88px;color:#fff1f8;background:#492146;border:1px solid #e9a4d7;border-radius:8px;padding:12px';
+					slot.appendChild(button);
+				}, destroyAd() { parent.tadsFixtureDestroyed = true; } };
+			} };
+		}` });
+		await evaluate(`
+			window.tadsPreviousFetch = window.fetch; window.tadsPreviousAccount = playerAccount; window.tadsPreviousTelegram = window.Telegram;
+			window.tadsFixtureMode = 'success'; window.tadsFixtureConfig = 'debug'; window.tadsFixtureReads = 0;
+			window.Telegram = { WebApp: { initData: 'fixture-only', platform: 'android', openLink: url => { window.tadsFixtureLink = url; } } };
+			window.fetch = async (route, options) => {
+				if (route !== '/api/tads') return tadsPreviousFetch(route, options);
+				tadsFixtureReads++;
+				return new Response(JSON.stringify({ provider: 'tads', type: 'static', mode: tadsFixtureConfig, widgetId: tadsFixtureConfig === 'disabled' ? null : '123456', rewardsEnabled: false }));
+			};
+			setPlayerAccount('connected', { id: 'tads-owner', telegramId: '12345', firstName: 'Fixture' });
+			officialRun = { id: 'tads-fixture', verified: true }; gameState = 2; document.body.dataset.screen = 'game';
+			$('#resultSaveNote').text('Score saved to your account');
+			$('#startScreen').prop('hidden', true); $('#gameoverscreen').prop('hidden', false);
+			window.tadsBefore = JSON.stringify([score, gameTicks, playerRecords, playerPreferences]); loadResultBanner(); return null;
+		`);
+		await waitFor('!document.querySelector("#resultSponsorOpen").hidden', 'TADS config did not settle');
+		assert.equal(await evaluate('return document.querySelectorAll("#resultSponsorFrame iframe").length === 0 && !Array.from(document.scripts).some(s => s.src.startsWith("https://w.tads.me/"));'), true);
+		for (const [width, height] of [[390, 844], [320, 568], [568, 320]]) {
+			await command('browsingContext.setViewport', { context, viewport: { width, height }, devicePixelRatio: 1 });
+			await click('#resultSponsorOpen');
+			await waitFor('document.querySelector("#resultSponsorStatus").textContent.startsWith("Test advertisement")', 'isolated static banner did not render');
+			assert.deepEqual(await evaluate('return tadsFixtureOptions;'), { widgetId: 123456, type: 'static', debug: true, rewardCallback: false });
+			await evaluate('document.querySelector("#resultSponsorClose").scrollIntoView({block:"end",behavior:"instant"}); return null;');
+			assert.equal(await evaluate('const frame = resultBannerFrame.getBoundingClientRect(); const close = document.querySelector("#resultSponsorClose").getBoundingClientRect(); return frame.left >= 0 && frame.right <= innerWidth && frame.height <= 320 && close.top >= 0 && close.bottom <= innerHeight && document.querySelector("#gameoverscreen").scrollWidth <= innerWidth;'), true, 'bounded banner and close remain scroll-reachable');
+			assert.equal(await evaluate('return tadsBefore === JSON.stringify([score, gameTicks, playerRecords, playerPreferences]);'), true);
+			await screenshot('tads-' + (reducedMotionTest ? 'reduced-' : '') + width + 'x' + height + '-fixture');
+			await click('#resultSponsorClose');
+			assert.equal(await evaluate('return resultBannerFrame === null && document.querySelectorAll("#resultSponsorFrame iframe").length === 0;'), true);
+		}
+		await click('#resultSponsorOpen');
+		await waitFor('document.querySelector("#resultSponsorStatus").textContent.startsWith("Test advertisement")', 'Escape fixture did not render');
+		await evaluate('resultBannerFrame.contentDocument.querySelector("button").focus(); return null;');
+		await command('input.performActions', { context, actions: [{ type: 'key', id: 'tads-keyboard', actions: [{ type: 'keyDown', value: '\uE00C' }, { type: 'keyUp', value: '\uE00C' }] }] });
+		await waitFor('resultBannerFrame === null && document.activeElement.id === "resultSponsorOpen"', 'Escape must close the child and restore parent focus');
+		await evaluate('tadsFixtureMode = "no-fill"; return null;'); await click('#resultSponsorOpen');
+		await waitFor('resultBannerFrame === null', 'no-fill did not clean up its context');
+		assert.match(await evaluate('return document.querySelector("#resultSponsorStatus").textContent;'), /No sponsor available/);
+		await evaluate('tadsFixtureMode = "pending"; return null;'); await click('#resultSponsorOpen');
+		await waitFor('typeof tadsFixtureResolve === "function"', 'pending banner fixture did not start');
+		await evaluate('window.tadsOldFrame = resultBannerFrame; setPlayerAccount("guest"); tadsFixtureResolve(); return null;');
+		assert.equal(await evaluate('return resultBannerFrame === null && !tadsOldFrame.isConnected && document.querySelector("#resultSponsor").hidden && tadsBefore === JSON.stringify([score, gameTicks, playerRecords, playerPreferences]);'), true);
+		await evaluate(`
+			setPlayerAccount('connected', { id: 'tads-owner', telegramId: '12345' }); tadsFixtureMode = 'success'; loadResultBanner(); return null;
+		`);
+		await waitFor('!document.querySelector("#resultSponsorOpen").hidden', 'visibility fixture config did not settle');
+		await click('#resultSponsorOpen');
+		await waitFor('document.querySelector("#resultSponsorStatus").textContent.startsWith("Test advertisement")', 'visibility fixture did not render');
+		await evaluate('window.tadsOldFrame = resultBannerFrame; Object.defineProperty(document, "hidden", { configurable: true, value: true }); document.dispatchEvent(new Event("visibilitychange")); return null;');
+		assert.equal(await evaluate('return !tadsOldFrame.isConnected && resultBannerFrame === null && document.querySelector("#resultSponsor").hidden;'), true);
+		await evaluate('delete document.hidden; document.dispatchEvent(new Event("visibilitychange")); tadsFixtureConfig = "disabled"; loadResultBanner(); return null;');
+		await waitFor('tadsFixtureReads === 3', 'disabled TADS read did not settle');
+		assert.equal(await evaluate('return document.querySelector("#resultSponsorOpen").hidden && document.querySelector("#resultSponsorClose").hidden;'), true, 'disabled banner actions are absent from focus');
+		await evaluate(`
+			window.fetch = tadsPreviousFetch;
+			if (tadsPreviousTelegram) window.Telegram = tadsPreviousTelegram; else delete window.Telegram;
+			setPlayerAccount(tadsPreviousAccount.state, tadsPreviousAccount.user, tadsPreviousAccount.reason); setStartScreen(); return null;
+		`);
+		assert.equal(await evaluate('return resultBannerFrame === null && document.querySelector("#resultSponsor").hidden;'), true, 'title navigation leaves no provider context');
+		await command('script.removePreloadScript', { script: preload.script });
+		await command('browsingContext.setViewport', { context, viewport: { width: 1280, height: 900 }, devicePixelRatio: 1 });
+		console.log('PASS: optional static TADS results banner, local iframe disposal, no-fill/account isolation and small-screen controls (provider/API fixtures, no live impressions or rewards).');
+	}
 	async function checkAdsgram() {
 		await evaluate(`
 			window.adPreviousFetch = window.fetch; window.adPreviousAccount = playerAccount; window.adPreviousSdk = window.Adsgram; window.adPreviousTelegram = window.Telegram;
@@ -436,6 +515,7 @@ try {
 	assert.ok(iconColors.every(color => color !== 'none'));
 	assert.equal(await evaluate('return document.querySelectorAll("#openProfile svg circle").length > 0 && document.querySelectorAll(".feature-symbol svg").length === 4 && document.querySelectorAll("[data-home-panel=profile] .menu-symbol svg").length === 3;'), true, 'local smiley, feature and Profile action artwork');
 	await checkAdsgram();
+	await checkTads();
 	if (process.env.SMOKE_REFERRALS_ONLY === '1') {
 		await checkReferrals();
 		assert.deepEqual(errors, []); assert.deepEqual(external, []);

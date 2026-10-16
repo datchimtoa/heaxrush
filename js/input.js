@@ -8,6 +8,11 @@ function addKeyListeners() {
 	$('#practiceBtn').on('click', startPracticeRun);
 	$('#retryResult').on('click', function() { syncOfficialRun(true); });
 	$('#resultAdButton').on('click', function() { showResultAdCheck(); });
+	$('#resultSponsorOpen').on('click', function() { showResultBanner(); });
+	$('#resultSponsorClose').on('click', function() {
+		closeResultBanner(); $('#resultSponsorStatus').text('Sponsor closed.');
+		document.getElementById('resultSponsorOpen').focus({ preventScroll: true });
+	});
 	canvas.addEventListener('pointerdown', function(e) {
 		if (gameState !== 1) return;
 		e.preventDefault();
@@ -20,7 +25,7 @@ function addKeyListeners() {
 		var key = e.key.toLowerCase();
 		var dialog = document.querySelector('.modal-backdrop:not([hidden])');
 		if (key === 'tab' && dialog) {
-			var focusable = Array.from(dialog.querySelectorAll('button, a[href]')).filter(function(element) { return !element.hidden && !element.disabled; });
+			var focusable = Array.from(dialog.querySelectorAll('button, a[href], iframe')).filter(function(element) { return !element.hidden && !element.disabled; });
 			var first = focusable[0];
 			var last = focusable[focusable.length - 1];
 			if (e.shiftKey && (document.activeElement === first || !dialog.contains(document.activeElement))) {

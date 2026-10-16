@@ -3,6 +3,29 @@
 Based on Hextris `master`, commit `8872ec47d694628e2fe668ebaa90b13d5626d95f`.
 Original authors and GPLv3-or-later licensing are retained.
 
+## feat: add default-off non-paying TADS results banner (Phase 3B)
+
+- Added separate validated TADS static widget/explicit-enable/debug settings and
+  authenticated uncached, rate-limited read-only configuration. No widget ID or
+  production activation is fabricated; production rejects debug true.
+- Added opt-in sponsor placement only after a saved Telegram account result,
+  never gameplay/Home/pause/practice. Disclosure, bounded loading, no-fill/retry,
+  close and unchanged Play again preserve the game-first flow.
+- A disposable local iframe owns the third-party SDK/template lifecycle and
+  limited provider CSP; leaving results/account changes/hidden tabs remove it.
+  Exact origin/window/nonce checks protect the native link relay. Same-origin
+  framing is lifecycle containment, not a malicious-SDK security boundary.
+- No reward callbacks, Coins, score/history mutations, settlement routes,
+  migrations, automatic fullscreen, live database writes or fabricated revenue.
+  Added client/frame/HTTP/browser fixtures and the TADS setup/privacy runbook.
+  Genuine provider/device impressions remain separate validation.
+- Local release checks: 225 unit/fixture tests passed, two disposable database
+  suites skipped locally; 15/15 standalone gameplay and 81 syntax files passed.
+  Normal and genuine reduced-motion Firefox passed sequentially against an
+  isolated Node service at three screen sizes, including child Escape/focus,
+  no-fill, late account work, hidden-tab disposal and replay isolation. Provider
+  and authenticated values are fixtures, not live TADS impressions or revenue.
+
 ## feat: prepare AdsGram rewarded SDK integration (Phase 3A)
 
 - Added validated Reward-block environment configuration, owner-authenticated

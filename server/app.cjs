@@ -4,6 +4,7 @@ const { randomBytes } = require('node:crypto');
 const { AuthError, validateTelegramData, hashToken } = require('./telegram.cjs');
 const { GameError } = require('./replay.cjs');
 const { adsgramView } = require('./adsgram.cjs');
+const { tadsView, tadsFramePolicy } = require('./tads.cjs');
 
 function readSessionToken(req, name) {
 	const cookies = (req.headers.cookie || '').split(';').map(value => value.trim());
@@ -23,7 +24,7 @@ function createApp({ config, store, games = null, coins = null, leaderboards = n
 		res.set({
 			'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer',
 			'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-			'Content-Security-Policy': "default-src 'self'; script-src 'self' https://telegram.org" + (adDebug ? ' https://sad.adsgram.ai' : '') + "; style-src 'self' 'unsafe-inline'; img-src 'self' data:" + (adDebug ? ' https://*.adsgram.ai' : '') + "; font-src 'self'; connect-src 'self'" + (adDebug ? ' https://*.adsgram.ai; media-src https://*.adsgram.ai; frame-src https://*.adsgram.ai' : '') + "; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"
+			'Content-Security-Policy': "default-src 'self'; script-src 'self' https://telegram.org" + (adDebug ? ' https://sad.adsgram.ai' : '') + "; style-src 'self' 'unsafe-inline'; img-src 'self' data:" + (adDebug ? ' https://*.adsgram.ai' : '') + "; font-src 'self'; connect-src 'self'" + (adDebug ? " https://*.adsgram.ai; media-src https://*.adsgram.ai; frame-src 'self' https://*.adsgram.ai" : '') + "; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"
 		});
 		if (config.production) res.set('Strict-Transport-Security', 'max-age=31536000');
 		next();
@@ -223,26 +224,30 @@ function createApp({ config, store, games = null, coins = null, leaderboards = n
 		catch (error) { next(error); }
 	});
 	const adReads = new Map();
-	app.get('/api/adsgram', async (req, res, next) => {
+	for (const [route, view] of [['/api/adsgram', adsgramView], ['/api/tads', tadsView]]) app.get(route, async (req, res, next) => {
 		try {
 			if (!store || !config.botToken) throw new GameError('Account service is not configured', 503);
 			const token = readSessionToken(req, config.cookieName);
 			const session = token && await store.getSession(hashToken(token));
 			if (!session) throw new AuthError('Not authenticated');
 			if (Object.keys(req.query).length) throw new GameError('Ad configuration accepts no fields');
-			const time = now(), key = session.user.id;
+			const time = now(), key = route + ':' + session.user.id;
 			for (const [id, bucket] of adReads) if (bucket.reset <= time) adReads.delete(id);
 			const bucket = adReads.get(key) || { count: 0, reset: time + 60000 };
 			if (bucket.count >= 20 || (!adReads.has(key) && adReads.size >= 10000)) {
 				res.set('Retry-After', '60'); throw new GameError('Too many ad configuration requests', 429);
 			}
 			bucket.count++; adReads.set(key, bucket);
-			res.json(adsgramView(config));
+			res.json(view(config));
 		} catch (error) { next(error); }
 	});
 	app.use('/api', (req, res) => res.status(404).json({ error: 'API route not found' }));
 	// Never serve the repository root: it contains backend code and environment files.
 	const root = path.resolve(__dirname, '..');
+	app.get('/tads-frame.html', (req, res) => {
+		res.set({ 'Cache-Control': 'no-store', 'Content-Security-Policy': tadsFramePolicy(config) });
+		res.sendFile(path.join(root, 'tads-frame.html'));
+	});
 	for (const directory of ['js', 'style', 'vendor', 'images']) {
 		app.use('/' + directory, express.static(path.join(root, directory), { dotfiles: 'deny', index: false, redirect: false }));
 	}

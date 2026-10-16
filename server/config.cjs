@@ -1,5 +1,6 @@
 const { readFileSync } = require('node:fs');
 const { readAdsgramConfig } = require('./adsgram.cjs');
+const { readTadsConfig } = require('./tads.cjs');
 
 function readConfig(env = process.env) {
 	const production = env.NODE_ENV === 'production';
@@ -13,6 +14,7 @@ function readConfig(env = process.env) {
 	return {
 		production, port, origin: origin.origin, botToken: env.TELEGRAM_BOT_TOKEN || '', botUsername,
 		adsgram: readAdsgramConfig(env),
+		tads: readTadsConfig(env),
 		databaseUrl: env.DATABASE_URL || '',
 		ssl: env.DATABASE_SSL_CA_FILE ? { ca: readFileSync(env.DATABASE_SSL_CA_FILE, 'utf8'), rejectUnauthorized: true } : undefined,
 		cookieName: production ? '__Host-hexaRushSession' : 'hexaRushSession',

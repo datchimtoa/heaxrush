@@ -1,0 +1,10 @@
+/* Isolated static provider content; the parent owns label, close and game actions. */
+:root { color-scheme: dark; font: 14px sans-serif; color: #fff1f8; }
+* { box-sizing: border-box; }
+body { margin: 0; padding: 8px; background: #281234; overflow-wrap: anywhere; }
+button { font: inherit; cursor: pointer; }
+button:focus-visible { outline: 2px solid #ffdc69; outline-offset: 2px; }
+#sponsorContent { min-width: 0; }
+.tads-text-wrapper { min-width: 0; }
+.tads-image { flex: 0 0 64px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }

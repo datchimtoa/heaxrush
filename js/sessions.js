@@ -33,6 +33,7 @@ async function startPlayerRun() {
 		return;
 	}
 	if (playerAccount.state !== 'connected') { startPracticeRun(); return; }
+	if (typeof resetResultBanner === 'function') resetResultBanner();
 	runStarting = true;
 	var generation = ++runGeneration;
 	$('#startBtn, #restart, #restartBtn, #activityPlay').prop('disabled', true);
@@ -118,6 +119,7 @@ function syncOfficialRun(ending) {
 				$('#resultEyebrow').text('NICE RUN');
 				$('#retryResult').prop('hidden', true);
 				if (typeof loadResultAd === 'function') loadResultAd();
+				if (typeof loadResultBanner === 'function') loadResultBanner();
 			} else if (officialRun === run) {
 				if (gameTicks < HexaSessionRules.maxTicks) $('#gameMode').text('Chase your next best!');
 				$('#runNotice').prop('hidden', true);

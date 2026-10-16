@@ -47,6 +47,7 @@ function updateComboDisplay() {
 function gameOverDisplay() {
 	if (MainHex.runRecorded) return;
 	if (typeof resetResultAd === 'function') resetResultAd();
+	if (typeof resetResultBanner === 'function') resetResultBanner();
 	$('#resultCoins').prop('hidden', true);
 	if (officialRun) {
 		MainHex.runRecorded = true;

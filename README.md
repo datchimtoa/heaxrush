@@ -219,6 +219,24 @@ deployed. Do not treat that example as a functioning callback. See
 [the AdsGram runbook](server/ADSGRAM.md) for provider requirements, deployment
 settings and the precise remaining reward/verification decisions.
 
+## Optional TADS sponsor banner (Phase 3B)
+
+The independent non-rewarded results banner is implemented with **default-off**
+configuration. It needs its own TADS **Text-Graphic Block / Non-Rewarded** widget
+ID; no TADS widget has been supplied or created. Set `TADS_RESULT_WIDGET_ID`
+privately; an ID alone does not enable it. `TADS_RESULT_BANNER_ENABLED=true` is
+the explicit owner switch after test-app/provider/privacy checks. Keep
+`TADS_DEBUG=false` on production; test mode is non-production only.
+
+After a saved account result inside Telegram, eligible players can explicitly
+open **Show sponsor banner**. No SDK loads before that tap. The optional static
+banner is disclosed, closable and independent of Play again. It never appears
+during play, pause, on Home or in practice. A disposable local iframe stops its
+scripts/timers on leaving results, account changes or hidden tabs. No Coins,
+score changes, click bonuses, automatic fullscreen or payable webhooks.
+See [the TADS runbook](server/TADS.md) for exact setup/privacy/CSP and validation
+boundaries. AdsGram reward verification and earning remain separately blocked.
+
 ## Authoritative game sessions
 
 The browser cannot submit a score, best score, reward, balance, seed, spawn, or
